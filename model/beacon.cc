@@ -33,8 +33,8 @@ Beacon::Beacon (uint32_t frequency)
   m_face.setInterestFilter (BEACONPREFIX, std::bind (&Beacon::ProcessInterest, this, _2),
                             std::bind ([] {}), std::bind ([] {}));
 
-  if (thisNode->GetId () == 0)
-    SendBeaconInterest ();
+  // if (thisNode->GetId () == 0)
+  SendBeaconInterest ();
 }
 
 uint64_t
@@ -85,7 +85,7 @@ Beacon::ProcessInterest (const ndn::Interest &interest)
   std::cout << "\t___inFaceId___" << inFaceId << std::endl;
   if (!inFaceId)
     {
-      //NS_LOG_DEBUG("Discarding Interest from internal face: " << interest);
+      NS_LOG_DEBUG ("Discarding Interest from internal face: " << interest);
       return;
     }
   NS_LOG_INFO ("Interest: " << interest << " inFaceId=" << inFaceId);
@@ -145,9 +145,16 @@ Beacon::SendBeaconInterest ()
 {
   /* First of all, cancel any previously scheduled events */
   send_beacon_event.cancel ();
+
   Name name = Name (BEACONPREFIX);
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  name.append (std::to_string (thisNode->GetId ()));
+  
+  // name schema /localhop/beacon/<sender-id>/<pos-x>/<pos-y>/<pos-z>/
+  name.append (std::to_string (thisNode->GetId ())); // sender-id
+  name.append (std::to_string (thisNode->GetId ())); // pos x
+  name.append (std::to_string (thisNode->GetId ())); // pos y
+  name.append (std::to_string (thisNode->GetId ())); // pos z
+  
   NS_LOG_INFO ("Sending Interest " << name);
 
   Interest interest = Interest ();

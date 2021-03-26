@@ -13,7 +13,7 @@ trace:
 trips:
 	echo "$(date) : Making trips" 
         # Exclude ][ -> 2 vehicles
-	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r routes.rou.xml  -o trips.xml -b 1 -e 3 -p 0.5
+	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r routes.rou.xml  -o trips.xml -b 1 -e 4 -p 0.5
 
 sim:
 	sumo-gui -c sim.sumocfg

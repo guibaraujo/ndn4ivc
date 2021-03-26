@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon Mar 15 12:52:27 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Fri Mar 26 13:40:25 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -15,7 +15,7 @@
 
     <time>
         <begin value="1.0"/>
-        <end value="3.0"/>
+        <end value="4.0"/>
     </time>
 
     <report>
@@ -28,7 +28,16 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vehicle id="1" depart="2.00">
+    <vehicle id="2" depart="2.00">
+        <route edges="gneE1 gneE2"/>
+    </vehicle>
+    <vehicle id="3" depart="2.50">
+        <route edges="gneE1 gneE2"/>
+    </vehicle>
+    <vehicle id="4" depart="3.00">
+        <route edges="gneE1 gneE2"/>
+    </vehicle>
+    <vehicle id="5" depart="3.50">
         <route edges="gneE1 gneE2"/>
     </vehicle>
 </routes>

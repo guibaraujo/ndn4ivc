@@ -4,3 +4,9 @@ def build(bld):
 
     obj = bld.create_ns3_program('vndn-example-beacon', ['ndn4ivc'])
     obj.source = 'vndn-example-beacon.cc'
+
+    obj = bld.create_ns3_program('vndn-example-beacon-grid', ['ndn4ivc'])
+    obj.source = 'vndn-example-beacon-grid.cc'
+
+    obj = bld.create_ns3_program('vndn-sumo-circle', ['ndn4ivc'])
+    obj.source = 'vndn-sumo-circle.cc'

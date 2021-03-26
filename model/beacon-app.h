@@ -22,8 +22,8 @@ public:
   {
     static TypeId tid = TypeId ("BeaconApp").SetParent<Application> ().AddConstructor<BeaconApp> ()
           .AddAttribute ("Frequency", "Frequency of interest packets", StringValue ("1000"),
-                         MakeDoubleAccessor (&BeaconApp::m_frequency),
-                         MakeDoubleChecker<int> ());
+                         MakeUintegerAccessor (&BeaconApp::m_frequency),
+                         MakeUintegerChecker<uint32_t> ());
 
     return tid;
   }
@@ -47,7 +47,7 @@ protected:
 
 private:
   std::unique_ptr<::ndn::Beacon> m_instance;
-  int m_frequency;
+  uint32_t m_frequency;
 };
 
 } // namespace ns3

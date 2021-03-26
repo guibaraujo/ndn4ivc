@@ -1,24 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- generated on 2021-03-15 13:02:32.967465 by $Id$
-  options: -n map.net.xml -r routes.rou.xml -o trips.xml -b 1 -e 10 -p 0.5
+<!-- generated on 2021-03-26 13:46:25.528563 by $Id$
+  options: -n map.net.xml -r routes.rou.xml -o trips.xml -b 1 -e 3 -p 0.5
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <trip id="0" depart="1.00" from="gneE2" to="-gneE2"/>
-    <trip id="1" depart="1.50" from="gneE2" to="gneE3"/>
-    <trip id="2" depart="2.00" from="gneE2" to="-gneE4"/>
-    <trip id="3" depart="2.50" from="-gneE5" to="-gneE4"/>
-    <trip id="4" depart="3.00" from="-gneE5" to="gneE3"/>
-    <trip id="5" depart="3.50" from="gneE4" to="-gneE4"/>
-    <trip id="6" depart="4.00" from="-gneE5" to="-gneE4"/>
-    <trip id="7" depart="4.50" from="-gneE5" to="gneE5"/>
-    <trip id="8" depart="5.00" from="-gneE5" to="-gneE4"/>
-    <trip id="9" depart="5.50" from="gneE4" to="gneE5"/>
-    <trip id="10" depart="6.00" from="-gneE5" to="gneE5"/>
-    <trip id="11" depart="6.50" from="-gneE5" to="-gneE2"/>
-    <trip id="12" depart="7.00" from="-gneE3" to="gneE3"/>
-    <trip id="13" depart="7.50" from="gneE4" to="gneE3"/>
-    <trip id="14" depart="8.00" from="-gneE5" to="-gneE4"/>
-    <trip id="15" depart="8.50" from="gneE4" to="-gneE2"/>
-    <trip id="16" depart="9.00" from="-gneE5" to="gneE3"/>
-    <trip id="17" depart="9.50" from="gneE2" to="-gneE4"/>
+    <trip id="0" depart="1.00" from="gneE4" to="-gneE2"/>
+    <trip id="1" depart="1.50" from="gneE2" to="-gneE2"/>
+    <trip id="2" depart="2.00" from="-gneE5" to="-gneE4"/>
+    <trip id="3" depart="2.50" from="gneE4" to="gneE5"/>
 </routes>

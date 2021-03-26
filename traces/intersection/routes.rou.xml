@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon Mar 15 13:02:32 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Fri Mar 26 13:46:25 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -15,7 +15,7 @@
 
     <time>
         <begin value="1.0"/>
-        <end value="10.0"/>
+        <end value="3.0"/>
     </time>
 
     <report>
@@ -28,43 +28,13 @@
 -->
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vehicle id="1" depart="1.50">
-        <route edges="gneE2 gneE3"/>
-    </vehicle>
-    <vehicle id="2" depart="2.00">
-        <route edges="gneE2 -gneE4"/>
-    </vehicle>
-    <vehicle id="3" depart="2.50">
-        <route edges="-gneE5 -gneE4"/>
-    </vehicle>
-    <vehicle id="4" depart="3.00">
-        <route edges="-gneE5 gneE3"/>
-    </vehicle>
-    <vehicle id="6" depart="4.00">
-        <route edges="-gneE5 -gneE4"/>
-    </vehicle>
-    <vehicle id="8" depart="5.00">
-        <route edges="-gneE5 -gneE4"/>
-    </vehicle>
-    <vehicle id="9" depart="5.50">
-        <route edges="gneE4 gneE5"/>
-    </vehicle>
-    <vehicle id="11" depart="6.50">
-        <route edges="-gneE5 -gneE2"/>
-    </vehicle>
-    <vehicle id="13" depart="7.50">
-        <route edges="gneE4 gneE3"/>
-    </vehicle>
-    <vehicle id="14" depart="8.00">
-        <route edges="-gneE5 -gneE4"/>
-    </vehicle>
-    <vehicle id="15" depart="8.50">
+    <vehicle id="0" depart="1.00">
         <route edges="gneE4 -gneE2"/>
     </vehicle>
-    <vehicle id="16" depart="9.00">
-        <route edges="-gneE5 gneE3"/>
+    <vehicle id="2" depart="2.00">
+        <route edges="-gneE5 -gneE4"/>
     </vehicle>
-    <vehicle id="17" depart="9.50">
-        <route edges="gneE2 -gneE4"/>
+    <vehicle id="3" depart="2.50">
+        <route edges="gneE4 gneE5"/>
     </vehicle>
 </routes>

@@ -1,6 +1,3 @@
-#include "ns3/beacon.h"
-#include "ns3/beacon-app.h"
-
 #include "ns3/wave-module.h"
 #include "ns3/wifi-module.h"
 #include "ns3/mobility-module.h"
@@ -8,73 +5,70 @@
 #include "ns3/network-module.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/internet-module.h"
-#include "ns3/wifi-setup-helper.h"
-
 #include "ns3/traci-module.h"
 #include "ns3/netanim-module.h"
 
 #include <functional>
 #include <stdlib.h>
-#include <stdio.h>
+
+#include "ns3/wifi-setup-helper.h"
 
 #define YELLOW_CODE "\033[33m"
-#define RED_CODE "\033[31m"
-#define BLUE_CODE "\033[34m"
+#define TEAL_CODE "\033[36m"
 #define BOLD_CODE "\033[1m"
-#define CYAN_CODE "\033[36m"
 #define END_CODE "\033[0m"
 
-#define SUMOSCENARIO "intersection"
-
-#define SHELLSCRIPT \
-  "\
-#/bin/bash \n\
-echo $1 \n\
-echo `cat contrib/ndn4ivc/traces/" SUMOSCENARIO "/routes.rou.xml |grep \"vehicle id\"|wc -l` \n\
-"
+/* NS_LOG=ndn.Consumer:ndn.Producer ./waf --run "vndn-sumo-circle" --vis */
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("vndn-example-beacon");
-NS_OBJECT_ENSURE_REGISTERED (BeaconApp);
+NS_LOG_COMPONENT_DEFINE ("ndn.vndn-sumo-circle");
 
 namespace ns3 {
-
-std::string
-exec (const char *cmd)
+void
+SomeEvent ()
 {
-  std::array<char, 128> buffer;
-  std::string result;
-  std::unique_ptr<FILE, decltype (&pclose)> pipe (popen (cmd, "r"), pclose);
-  if (!pipe)
+}
+
+// Note: this is a promiscuous trace for all packet reception
+// This is also on physical layer, so packets still have WifiMacHeader
+void
+Rx (std::string context, Ptr<const Packet> packet, uint16_t channelFreqMhz, WifiTxVector txVector,
+    MpduInfo aMpdu, SignalNoiseDbm signalNoise)
+{
+  // context will include info about the source of this event
+  // use string manipulation if you want to extract info
+  std::cout << BOLD_CODE << context << END_CODE << std::endl;
+  // print the info
+  std::cout << "\tSize=" << packet->GetSize () << " Freq=" << channelFreqMhz
+            << " Mode=" << txVector.GetMode () << " Signal=" << signalNoise.signal
+            << " Noise=" << signalNoise.noise << std::endl;
+
+  // now it's possible to examine the WifiMacHeader
+  WifiMacHeader hdr;
+  if (packet->PeekHeader (hdr))
     {
-      throw std::runtime_error ("popen() failed!");
+      //std::cout << "\tDestination MAC : " << hdr.GetAddr1 () << "\tSource MAC : " << hdr.GetAddr2 ()
+      //          << std::endl;
     }
-  while (fgets (buffer.data (), buffer.size (), pipe.get ()) != nullptr)
-    {
-      result += buffer.data ();
-    }
-  return result;
 }
 
 int
 main (int argc, char *argv[])
 {
-  std::cout << CYAN_CODE << BOLD_CODE << "Starting simulation... " END_CODE << std::endl;
+  std::cout << TEAL_CODE << BOLD_CODE << "Starting component ndn.Ivts... " END_CODE << std::endl;
 
   // conf default values
-  uint32_t nNodes = std::stoi (exec (SHELLSCRIPT));
-  uint32_t beaconInterval = 1000;
-  uint32_t simTime = 600;
+  CommandLine cmd;
+  uint32_t nNodes = 3; // or automate waf ... --n=`cat /path/*.rou.xml|grep vehicle|wc -l`
+  double simTime = 100;
+  double interval = 0.5;
   bool enablePcap = false;
-  bool enableLog = true;
-
-  std::cout << "# nodes: " << nNodes << std::endl;
+  bool enableLog = false;
 
   // command line attibutes
-  CommandLine cmd;
-  cmd.AddValue ("i", "Beacon interval (milliseconds)", beaconInterval);
-  cmd.AddValue ("s", "Simulation time (seconds)", simTime);
+  cmd.AddValue ("i", "Broadcast interval in seconds", interval);
+  cmd.AddValue ("n", "Number of nodes", nNodes);
   cmd.AddValue ("pcap", "Enable PCAP", enablePcap);
   cmd.AddValue ("log", "Enable Log", enableLog);
 
@@ -82,48 +76,35 @@ main (int argc, char *argv[])
 
   if (enableLog)
     {
-      LogComponentEnable ("vndn-example-beacon", LOG_LEVEL_INFO);
-      LogComponentEnable ("ndn.Beacon", LOG_LEVEL_DEBUG);
       LogComponentEnable ("TraciClient", LOG_LEVEL_INFO);
+      LogComponentEnable ("TrafficControlApplication", LOG_LEVEL_INFO);
     }
 
   // create node pool and counter; large enough to cover all sumo vehicles
+  ns3::Time simulationTime (ns3::Seconds (simTime));
   NodeContainer nodePool;
-  nodePool.Create (nNodes);
+  nodePool.Create (20);
   uint32_t nodeCounter (0);
 
   // install Wifi & set up
-  NS_LOG_INFO ("Installing devices");
   ndn::WifiSetupHelper wifi;
-  NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enableLog);
+  NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enablePcap);
 
-  /* 
-  SCH1 172 SCH2 174 SCH3 176
-  CCH  178
-  SCH4 180 SCH5 182 SCH6 184
-  
-  set IEEE 80211p Channel
- */
-  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
-               ns3::UintegerValue (SCH3));
-
-  // NDN stack
+  // install NDN stack on all nodes
   ndn::StackHelper ndnHelper;
   ndnHelper.SetDefaultRoutes (true);
   ndnHelper.InstallAll ();
-  // Forwarding strategy
-  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
-  ndn::StrategyChoiceHelper::Install (nodePool, "/localhop/beacon",
-                                      "/localhost/nfd/strategy/localhop");
 
-  // install mobility model
-  NS_LOG_INFO ("Setting up mobility");
+  // choosing forwarding strategy
+  ndn::StrategyChoiceHelper::InstallAll ("/prefix", "/localhost/nfd/strategy/multicast");
+
+  NS_LOG_INFO ("Setting mobility");
 
   /*** setup mobility and position to node pool ***/
   MobilityHelper mobility;
   Ptr<UniformDiscPositionAllocator> positionAlloc = CreateObject<UniformDiscPositionAllocator> ();
-  positionAlloc->SetX (0.0);
-  positionAlloc->SetY (1500.0);
+  positionAlloc->SetX (320.0);
+  positionAlloc->SetY (320.0);
   positionAlloc->SetRho (25.0);
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -131,8 +112,8 @@ main (int argc, char *argv[])
 
   /*** setup Traci and start SUMO ***/
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
-  sumoClient->SetAttribute ("SumoConfigPath",
-                            StringValue ("contrib/ndn4ivc/traces/" SUMOSCENARIO "/sim.sumocfg"));
+  sumoClient->SetAttribute (
+      "SumoConfigPath", StringValue ("contrib/ndn4ivc/traces/circle-simple/circle.sumo.cfg"));
   sumoClient->SetAttribute ("SumoBinaryPath", StringValue ("")); // use system installation of sumo
   sumoClient->SetAttribute ("SynchInterval", TimeValue (Seconds (0.1)));
   sumoClient->SetAttribute ("StartTime", TimeValue (Seconds (0.0)));
@@ -146,16 +127,25 @@ main (int argc, char *argv[])
   sumoClient->SetAttribute ("SumoAdditionalCmdOptions", StringValue ("--verbose true"));
   sumoClient->SetAttribute ("SumoWaitForSocket", TimeValue (Seconds (1.0)));
 
-  // installing beacon-app
-  NS_LOG_INFO ("Installing Beacon application");
+  // installing applications
+  NS_LOG_INFO ("Installing Applications");
 
-  ApplicationContainer beaconContainer;
-  ndn::AppHelper beaconHelper ("BeaconApp");
-  beaconHelper.SetAttribute ("Frequency", UintegerValue (beaconInterval)); // in milliseconds
-  beaconContainer.Add (beaconHelper.Install (nodePool.Get (0)));
-  beaconContainer.Add (beaconHelper.Install (nodePool.Get (1)));
+  // consumer
+  ndn::AppHelper consumerHelper ("ns3::ndn::ConsumerCbr");
+  // consumer will request /prefix/0, /prefix/1, ...
+  consumerHelper.SetPrefix ("/prefix");
+  consumerHelper.SetAttribute ("Frequency", StringValue ("1")); // interests/second
+  auto apps = consumerHelper.Install (nodePool.Get (0)); // first node
+  apps.Stop (Seconds (simTime)); // stop the consumer app at 10 seconds mark
 
-  /** Define callback function for node creation */
+  // producer
+  ndn::AppHelper producerHelper ("ns3::ndn::Producer");
+  // producer will reply to all requests starting with /prefix
+  producerHelper.SetPrefix ("/prefix");
+  producerHelper.SetAttribute ("PayloadSize", StringValue ("1024"));
+  producerHelper.Install (nodePool.Get (1));
+
+  // callback function for node creation
   std::function<Ptr<Node> ()> setupNewWifiNode = [&] () -> Ptr<Node> {
     if (nodeCounter >= nodePool.GetN ())
       NS_FATAL_ERROR ("Node Pool empty!: " << nodeCounter << " nodes created.");
@@ -167,7 +157,7 @@ main (int argc, char *argv[])
     return includedNode;
   };
 
-  /** Define callback function for node shutdown */
+  // callback function for node shutdown
   std::function<void (Ptr<Node>)> shutdownWifiNode = [] (Ptr<Node> exNode) {
     // set position outside communication range
     Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
@@ -183,11 +173,23 @@ main (int argc, char *argv[])
   /*** Setup and Start Simulation + Animation ***/
   //AnimationInterface anim ("contrib/vndn-samples/traces/circle-simple/circle.sumo.xml"); // Mandatory
 
-  std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
+  Config::Connect ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/MonitorSnifferRx",
+                   MakeCallback (&Rx));
+
+  /* 
+  SCH1 172 SCH2 174 SCH3 176
+  CCH  178
+  SCH4 180 SCH5 182 SCH6 184
+  
+  set IEEE 80211p Channel
+ */
+  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
+               ns3::UintegerValue (SCH3));
+
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();
 
-  std::cout << RED_CODE << BOLD_CODE << "Post simulation: " END_CODE << std::endl;
+  std::cout << YELLOW_CODE << BOLD_CODE << "Post simulation: " END_CODE << std::endl;
 
   Simulator::Destroy ();
 
@@ -198,6 +200,5 @@ main (int argc, char *argv[])
 int
 main (int argc, char *argv[])
 {
-  std::system ("clear");
   return ns3::main (argc, argv);
 }
