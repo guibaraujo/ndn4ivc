@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2021-03-15 15:20:19.399410 by $Id$
+  options: -n map.net.xml -r routes.rou.xml -o trips.xml -b 1 -e 6 -p 0.5
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <trip id="0" depart="1.00" from="B2B1" to="E1D1"/>
+    <trip id="1" depart="1.50" from="C2B2" to="A3B3"/>
+    <trip id="2" depart="2.00" from="C1B1" to="C1C2"/>
+    <trip id="3" depart="2.50" from="E2E1" to="B3C3"/>
+    <trip id="4" depart="3.00" from="D1D2" to="B1C1"/>
+    <trip id="5" depart="3.50" from="A3B3" to="D1C1"/>
+    <trip id="6" depart="4.00" from="B2C2" to="D2D3"/>
+    <trip id="7" depart="4.50" from="A0B0" to="E0E1"/>
+    <trip id="8" depart="5.00" from="C3B3" to="A2B2"/>
+    <trip id="9" depart="5.50" from="E1E0" to="E2D2"/>
+</routes>

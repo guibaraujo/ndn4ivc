@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2021-03-15 14:30:55.184674 by $Id$
+  options: -n map.net.xml -r bus_routes.rou.xml -o bus_trips.xml -e 300 -p 30 <doubleminus>vehicle-class bus <doubleminus>trip-attributes=accel="0.8"
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="bus" vClass="bus" accel="0.8"/>
+    <trip id="0" depart="0.00" from="396232538#1" to="174617982" type="bus"/>
+    <trip id="1" depart="30.00" from="-390775704#1" to="48846492#2" type="bus"/>
+    <trip id="2" depart="60.00" from="-808158164#2" to="778924313" type="bus"/>
+    <trip id="3" depart="90.00" from="-49239939#1" to="99624819#0" type="bus"/>
+    <trip id="4" depart="120.00" from="-397307498#5" to="-807012494#1" type="bus"/>
+    <trip id="5" depart="150.00" from="686469802#11" to="778870285" type="bus"/>
+    <trip id="6" depart="180.00" from="30989254" to="112571156#1" type="bus"/>
+    <trip id="7" depart="210.00" from="-49381225#0" to="48846521#2" type="bus"/>
+    <trip id="8" depart="240.00" from="30771950#1" to="136050265" type="bus"/>
+    <trip id="9" depart="270.00" from="162438566#0" to="112571146#5" type="bus"/>
+</routes>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Mon Mar 15 14:31:00 2021 by Eclipse SUMO duarouter Version 1.1.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="map.net.xml"/>
+        <route-files value="trailer_trips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="trailer_routes.rou.xml"/>
+        <alternatives-output value="trailer_routes.rou.alt.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="300.0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <ignore-errors value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="trailer" vClass="trailer" color="223,179,180" accel="0.5"/>
+    <vehicle id="0" type="trailer" depart="0.00">
+        <routeDistribution last="0">
+            <route cost="84.64" probability="1.00000000" edges="812662182#6 778346821 136299032#0 136299032#1 136299032#2 136299032#3 136299032#4 136299032#5 136299032#6 48828888#0 48828888#1 48828888#2 48828888#3 569868740#0 569868740#1 569868740#2 569868740#3 474375214#0 474375214#1 474375214#2 45744093#0 -99624828#3 -99624828#2 -99624828#1 -99624828#0"/>
+        </routeDistribution>
+    </vehicle>
+    <vehicle id="1" type="trailer" depart="150.00">
+        <routeDistribution last="0">
+            <route cost="93.07" probability="1.00000000" edges="-31312839#1 -31312839#0 778885882#0 778885882#1 30967848#0 30967848#1 30967848#2 396464770#0 396464770#1 30967849#0 30967849#1 396464768#0 396464768#1 30967569#0 160892849#0 160892849#1 160892849#2 49236317#0 49236317#1 49236317#2 49236317#3 49236317#4 -396067910#21 -396067910#20 -396067910#19 -396067910#18 -145307510#1"/>
+        </routeDistribution>
+    </vehicle>
+</routes>

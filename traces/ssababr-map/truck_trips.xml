@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2021-03-15 14:30:56.363995 by $Id$
+  options: -n map.net.xml -r truck_routes.rou.xml -o truck_trips.xml -e 300 -p 15 <doubleminus>vehicle-class truck <doubleminus>trip-attributes=color="179,223,183"
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="truck" vClass="truck" color="179,223,183"/>
+    <trip id="0" depart="0.00" from="778870283" to="-569868740#12" type="truck"/>
+    <trip id="1" depart="15.00" from="391000055#6" to="-49381230#5" type="truck"/>
+    <trip id="2" depart="30.00" from="44936327#14" to="396060105#18" type="truck"/>
+    <trip id="3" depart="45.00" from="112571165#2" to="112571147#3" type="truck"/>
+    <trip id="4" depart="60.00" from="886563423#5" to="48846492#0" type="truck"/>
+    <trip id="5" depart="75.00" from="-622327684" to="-49381233#0" type="truck"/>
+    <trip id="6" depart="90.00" from="131510689#4" to="48828683#1" type="truck"/>
+    <trip id="7" depart="105.00" from="686469802#5" to="396067910#15" type="truck"/>
+    <trip id="8" depart="120.00" from="-48828795#0" to="136299032#4" type="truck"/>
+    <trip id="9" depart="135.00" from="-354120403#1" to="-396067910#11" type="truck"/>
+    <trip id="10" depart="150.00" from="30964625#12" to="-160892854#1" type="truck"/>
+    <trip id="11" depart="165.00" from="-397307498#0" to="-49381232#0" type="truck"/>
+    <trip id="12" depart="180.00" from="30765325#5" to="778820631" type="truck"/>
+    <trip id="13" depart="195.00" from="-49381243#8" to="-396220327#0" type="truck"/>
+    <trip id="14" depart="210.00" from="-438006981#2" to="812629547#1" type="truck"/>
+    <trip id="15" depart="225.00" from="48846316#1" to="-99876023#0" type="truck"/>
+    <trip id="16" depart="240.00" from="-30967936#11" to="686469802#9" type="truck"/>
+    <trip id="17" depart="255.00" from="136050615#0" to="48846520#1" type="truck"/>
+    <trip id="18" depart="270.00" from="886563422#2" to="396213761" type="truck"/>
+    <trip id="19" depart="285.00" from="48828682#0" to="145303050#1" type="truck"/>
+</routes>
