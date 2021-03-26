@@ -14,6 +14,8 @@
 #include "ns3/ndnSIM/model/ndn-l3-protocol.hpp"
 #include "ns3/ndnSIM/NFD/daemon/face/generic-link-service.hpp"
 
+#include "ns3/mobility-model.h"
+
 NS_LOG_COMPONENT_DEFINE ("ndn.Beacon");
 
 namespace ndn {
@@ -79,7 +81,8 @@ Beacon::ProcessInterest (const ndn::Interest &interest)
 {
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
   std::cout << "\t___OI___ respondToAnyInterest meu id:" << thisNode->GetId () << " "
-            << interest.getName () << std::endl;
+            << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x << " " << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y << " " << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z << interest.getName ()
+            << std::endl;
 
   uint64_t inFaceId = ExtractIncomingFace (interest);
   std::cout << "\t___inFaceId___" << inFaceId << std::endl;
@@ -148,13 +151,13 @@ Beacon::SendBeaconInterest ()
 
   Name name = Name (BEACONPREFIX);
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  
+
   // name schema /localhop/beacon/<sender-id>/<pos-x>/<pos-y>/<pos-z>/
   name.append (std::to_string (thisNode->GetId ())); // sender-id
   name.append (std::to_string (thisNode->GetId ())); // pos x
   name.append (std::to_string (thisNode->GetId ())); // pos y
   name.append (std::to_string (thisNode->GetId ())); // pos z
-  
+
   NS_LOG_INFO ("Sending Interest " << name);
 
   Interest interest = Interest ();
