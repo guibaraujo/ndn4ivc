@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <random>
+#include <vector>
 
 #include <ndn-cxx/face.hpp>
 #include <ndn-cxx/interest.hpp>
@@ -17,6 +18,11 @@
 #include <ndn-cxx/util/time.hpp>
 #include <ns3/core-module.h>
 #include <ns3/random-variable-stream.h>
+
+#include "ns3/network-module.h"
+#include "ns3/wifi-phy.h"
+
+#include "node-neighbour.h"
 
 namespace ndn {
 
@@ -31,6 +37,10 @@ public:
   void run ();
 
 private:
+  void UpdateNeighbour (NodeNeighbour& nodeNeighbour); //aqui
+  //void PrintNeighbors();
+  //void RemoveOldNeighbors();
+
   /** @brief process interest as a beacon for IVC.  
    *  The name schema for beacon, received from a neighbor, should be:
    *  /localhop/beacon/<node-id>/<node-pos-x>/<node-pos-y>/<node-pos-z>
@@ -60,6 +70,9 @@ private:
   uint32_t m_frequency; // @brief frequency of beacons (in milliseconds)
 
   std::string m_macaddr;
+
+  std::map<uint32_t, NodeNeighbour>
+      m_neighbors; /**< A table representing neighbors of this node */
 
   scheduler::EventId send_beacon_event; /* async send hello event scheduler */
 };

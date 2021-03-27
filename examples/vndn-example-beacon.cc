@@ -77,7 +77,6 @@ main (int argc, char *argv[])
   cmd.AddValue ("s", "Simulation time (seconds)", simTime);
   cmd.AddValue ("pcap", "Enable PCAP", enablePcap);
   cmd.AddValue ("log", "Enable Log", enableLog);
-
   cmd.Parse (argc, argv);
 
   if (enableLog)

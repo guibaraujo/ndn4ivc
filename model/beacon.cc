@@ -16,9 +16,17 @@
 
 #include "ns3/mobility-model.h"
 
+#include <vector>
+
 NS_LOG_COMPONENT_DEFINE ("ndn.Beacon");
 
 namespace ndn {
+
+void
+Beacon::UpdateNeighbour (NodeNeighbour &neighbor)
+{
+  m_neighbors.emplace(neighbor.GetId (), neighbor);
+}
 
 Beacon::Beacon (uint32_t frequency)
     // these should appear in the same order as they appear in the class definition
@@ -81,11 +89,14 @@ Beacon::ProcessInterest (const ndn::Interest &interest)
 {
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
   std::cout << "\t___OI___ respondToAnyInterest meu id:" << thisNode->GetId () << " "
-            << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x << " " << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y << " " << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z << interest.getName ()
+            << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x << " "
+            << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y << " "
+            << thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z << interest.getName ()
             << std::endl;
 
   uint64_t inFaceId = ExtractIncomingFace (interest);
   std::cout << "\t___inFaceId___" << inFaceId << std::endl;
+  std::cout << "\t___^^^^^___" << m_neighbors.size() << std::endl;
   if (!inFaceId)
     {
       NS_LOG_DEBUG ("Discarding Interest from internal face: " << interest);
@@ -101,6 +112,12 @@ Beacon::ProcessInterest (const ndn::Interest &interest)
 void
 Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
 {
+  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
+
+  NodeNeighbour neighbour;
+  neighbour.SetId (thisNode->GetId ());
+  UpdateNeighbour (neighbour);
+
   const ndn::Name interestName (interest.getName ());
   NS_LOG_INFO ("Received HELLO Interest " << interestName);
 }
@@ -154,9 +171,12 @@ Beacon::SendBeaconInterest ()
 
   // name schema /localhop/beacon/<sender-id>/<pos-x>/<pos-y>/<pos-z>/
   name.append (std::to_string (thisNode->GetId ())); // sender-id
-  name.append (std::to_string (thisNode->GetId ())); // pos x
-  name.append (std::to_string (thisNode->GetId ())); // pos y
-  name.append (std::to_string (thisNode->GetId ())); // pos z
+  name.append (
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x)); // pos x
+  name.append (
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y)); // pos y
+  name.append (
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z)); // pos z
 
   NS_LOG_INFO ("Sending Interest " << name);
 

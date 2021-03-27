@@ -18,6 +18,7 @@ def build(bld):
     module.source = [
         'helper/wifi-setup-helper.cc',
         'model/beacon.cc',
+        'model/node-neighbour.cc',
         'model/localhop-strategy.cc'
     ]
 
@@ -27,6 +28,7 @@ def build(bld):
         'helper/wifi-setup-helper.h',
         'model/beacon-app.h',
         'model/beacon.h',
+        'model/node-neighbour.h',
         'model/localhop-strategy.h'
     ]
 
