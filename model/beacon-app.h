@@ -1,5 +1,13 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
+// ███╗░░██╗██████╗░███╗░░██╗░░██╗██╗██╗██╗░░░██╗░█████╗░
+// ████╗░██║██╔══██╗████╗░██║░██╔╝██║██║██║░░░██║██╔══██╗
+// ██╔██╗██║██║░░██║██╔██╗██║██╔╝░██║██║╚██╗░██╔╝██║░░╚═╝
+// ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
+// ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
+// ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
+// https://github.com/guibaraujo/NDN4IVC
+
 #ifndef BEACON_APP_H
 #define BEACON_APP_H
 
@@ -11,43 +19,47 @@
 namespace ns3 {
 
 /**
- * @brief A simple beacon application for intervehicle communication and intelligent transportation system.
+ * @brief Beacon application over NDN for intervehicle communication
  * 
  */
 class BeaconApp : public Application
 {
+private:
+  std::unique_ptr<::ndn::Beacon> m_instance;
+  uint32_t m_frequency;
+
 public:
   static TypeId
   GetTypeId ()
   {
-    static TypeId tid = TypeId ("BeaconApp").SetParent<Application> ().AddConstructor<BeaconApp> ()
-          .AddAttribute ("Frequency", "Frequency of interest packets", StringValue ("1000"),
-                         MakeUintegerAccessor (&BeaconApp::m_frequency),
-                         MakeUintegerChecker<uint32_t> ());
+    static TypeId tid =
+        TypeId ("BeaconApp")
+            .SetParent<Application> ()
+            .AddConstructor<BeaconApp> ()
+            .AddAttribute ("Frequency", "Frequency of interest packets", StringValue ("1000"),
+                           MakeUintegerAccessor (&BeaconApp::m_frequency),
+                           MakeUintegerChecker<uint32_t> ());
 
     return tid;
   }
 
-protected:
-  // inherited from Application base class.
+  // inherited from Application base class
   virtual void
   StartApplication ()
   {
     // create an instance of the app
     m_instance.reset (new ::ndn::Beacon (m_frequency));
     m_instance->run (); // can be omitted
+    m_instance->start ();
   }
 
   virtual void
   StopApplication ()
   {
     // Stop and destroy the instance of the app
+    m_instance->stop ();
     m_instance.reset ();
   }
-
-private:
-  std::unique_ptr<::ndn::Beacon> m_instance;
-  uint32_t m_frequency;
 };
 
 } // namespace ns3

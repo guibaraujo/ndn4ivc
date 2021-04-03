@@ -1,5 +1,13 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
+// ███╗░░██╗██████╗░███╗░░██╗░░██╗██╗██╗██╗░░░██╗░█████╗░
+// ████╗░██║██╔══██╗████╗░██║░██╔╝██║██║██║░░░██║██╔══██╗
+// ██╔██╗██║██║░░██║██╔██╗██║██╔╝░██║██║╚██╗░██╔╝██║░░╚═╝
+// ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
+// ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
+// ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
+// https://github.com/guibaraujo/NDN4IVC
+
 #ifndef BEACON_H
 #define BEACON_H
 
@@ -22,32 +30,37 @@
 #include "ns3/network-module.h"
 #include "ns3/wifi-phy.h"
 
-#include "node-neighbour.h"
+#include "neighbor-info.h"
+
+#include <memory>
 
 namespace ndn {
 
 static const Name BEACONPREFIX = Name ("/localhop/beacon/");
 
-/** \brief Beacon for simple intervehicle communication.
+/** \brief Beacon for simple intervehicle communication
  */
 class Beacon
 {
 public:
   Beacon (uint32_t m_frequency);
   void run ();
+  void start ();
+  void stop ();
 
 private:
-  void UpdateNeighbour (NodeNeighbour& nodeNeighbour); //aqui
-  //void PrintNeighbors();
-  //void RemoveOldNeighbors();
+  typedef std::map<uint32_t, NeighborInfo> NeighborMap;
 
-  /** @brief process interest as a beacon for IVC.  
-   *  The name schema for beacon, received from a neighbor, should be:
+  bool isValidBeacon (const Name &name, NeighborInfo &neighbor);
+
+  /** @brief Processing beacon interest. The name schema is:
    *  /localhop/beacon/<node-id>/<node-pos-x>/<node-pos-y>/<node-pos-z>
    */
   void OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId);
 
   void PrintFib ();
+
+  void PrintNeighbors ();
 
   void ProcessInterest (const ndn::Interest &interest);
 
@@ -58,23 +71,21 @@ private:
   void setBeaconInterval (uint32_t frequencyInMillisecond);
 
   uint64_t ExtractIncomingFace (const ndn::Interest &interest);
+  uint64_t CreateUnicastFace (std::string mac);
 
 private:
   ndn::Face m_face;
   ndn::Scheduler m_scheduler;
 
-  ns3::Ptr<ns3::UniformRandomVariable> m_rand; ///< @brief nonce generator
+  ns3::Ptr<ns3::UniformRandomVariable> m_rand; // @brief nonce generator
 
   uint32_t m_seq;
-  uint32_t m_nodeid;
+  uint32_t m_nodeId;
   uint32_t m_frequency; // @brief frequency of beacons (in milliseconds)
 
-  std::string m_macaddr;
+  NeighborMap m_neighbors; // @brief neighbors' info*/
 
-  std::map<uint32_t, NodeNeighbour>
-      m_neighbors; /**< A table representing neighbors of this node */
-
-  scheduler::EventId send_beacon_event; /* async send hello event scheduler */
+  scheduler::EventId m_sendBeaconEvent; /* async send hello event scheduler */
 };
 } // namespace ndn
 
