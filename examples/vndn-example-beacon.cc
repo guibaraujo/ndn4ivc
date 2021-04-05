@@ -26,6 +26,7 @@
 #include <functional>
 #include <stdlib.h>
 #include <stdio.h>
+#include <exception>
 
 #define YELLOW_CODE "\033[33m"
 #define RED_CODE "\033[31m"
@@ -40,9 +41,17 @@
 #define SHELLSCRIPT_NUM_VEHICLES                      \
   "\
 #/bin/bash \n\
-echo $1 \n\
+#echo $1 \n\
 echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/routes.rou.xml |grep \"vehicle id\"|wc -l` \n\
+  "/routes.rou.xml |grep 'vehicle id'|wc -l` \n\
+"
+
+#define SHELLSCRIPT_SUMOMAP_BOUNDARIES                \
+  "\
+#/bin/bash \n\
+#echo $1 \n\
+echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
+  "/map.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
 "
 
 using namespace ns3;
@@ -59,27 +68,58 @@ exec (const char *cmd)
   std::string result;
   std::unique_ptr<FILE, decltype (&pclose)> pipe (popen (cmd, "r"), pclose);
   if (!pipe)
-    throw std::runtime_error ("popen() failed!");
+    throw std::runtime_error ("exec failed!");
   while (fgets (buffer.data (), buffer.size (), pipe.get ()) != nullptr)
     result += buffer.data ();
   return result;
+}
+
+vector<double>
+splitSumoMapBoundaries (std::string s, std::string delimiter)
+{
+  size_t posStart = 0, posEnd, delimLen = delimiter.length ();
+  string token;
+  vector<double> res;
+
+  while ((posEnd = s.find (delimiter, posStart)) != string::npos)
+    {
+      token = s.substr (posStart, posEnd - posStart);
+      posStart = posEnd + delimLen;
+      res.push_back (std::stof (token));
+    }
+
+  res.push_back (std::stof (s.substr (posStart)));
+  return res;
 }
 
 int
 main (int argc, char *argv[])
 {
   std::cout << CYAN_CODE << BOLD_CODE << "Starting simulation... " END_CODE << std::endl;
-  std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
 
-  // conf default values
-  uint32_t nNodes = std::stoi (exec (SHELLSCRIPT_NUM_VEHICLES));
+  uint32_t nVehicles = std::stoi (exec (SHELLSCRIPT_NUM_VEHICLES));
+  // Getting the network boundary for 2D SUMO map >> coordinate C1(x1,y1) and coordinate C2(x2,y2)
+  vector<double> sumoMapBoundaries =
+      splitSumoMapBoundaries (exec (SHELLSCRIPT_SUMOMAP_BOUNDARIES), ",");
+
+  std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
+  std::cout << "SUMO map boundaries: C1(" << sumoMapBoundaries.at (0) << ","
+            << sumoMapBoundaries.at (1) << ") C2(" << sumoMapBoundaries.at (2) << ","
+            << sumoMapBoundaries.at (3) << ")," << std::endl;
+
+  if (!nVehicles || sumoMapBoundaries.size () < 4)
+    throw std::runtime_error ("SUMO failed!");
+
+  uint32_t nRSUs = 1;
+
   uint32_t beaconInterval = 1000;
   uint32_t simTime = 600;
   bool enablePcap = false;
   bool enableLog = true;
   bool enableSumoGui = false;
 
-  std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nNodes << std::endl;
+  std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
+  std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
 
   // command line attibutes
   CommandLine cmd;
@@ -99,7 +139,7 @@ main (int argc, char *argv[])
 
   /* create node pool and counter; large enough to cover all sumo vehicles */
   NodeContainer nodePool;
-  nodePool.Create (nNodes);
+  nodePool.Create (nVehicles);
   uint32_t nodeCounter (0);
 
   // install wifi & set up
@@ -123,8 +163,8 @@ main (int argc, char *argv[])
   /*** setup mobility and position to node pool ***/
   MobilityHelper mobility;
   Ptr<UniformDiscPositionAllocator> positionAlloc = CreateObject<UniformDiscPositionAllocator> ();
-  positionAlloc->SetX (0.0);
-  positionAlloc->SetY (0.0);
+  positionAlloc->SetX (0);
+  positionAlloc->SetY (sumoMapBoundaries.at (1) - 5000);
   positionAlloc->SetZ (-5000.0);
   positionAlloc->SetRho (20.0);
   mobility.SetPositionAllocator (positionAlloc);
@@ -135,7 +175,8 @@ main (int argc, char *argv[])
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
   sumoClient->SetAttribute (
       "SumoConfigPath", StringValue ("contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/sim.sumocfg"));
-  sumoClient->SetAttribute ("SumoBinaryPath", StringValue ("")); // use system installation of sumo
+  sumoClient->SetAttribute ("SumoBinaryPath",
+                            StringValue ("")); // use system installation of sumo
   sumoClient->SetAttribute ("SynchInterval", TimeValue (Seconds (0.1)));
   sumoClient->SetAttribute ("StartTime", TimeValue (Seconds (0.0)));
   sumoClient->SetAttribute ("SumoGUI", BooleanValue (enableSumoGui));
@@ -167,6 +208,8 @@ main (int argc, char *argv[])
     ++nodeCounter;
     Ptr<BeaconApp> beaconApp = CreateObject<BeaconApp> ();
     beaconApp->SetAttribute ("Frequency", UintegerValue (beaconInterval)); // in milliseconds
+    beaconApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
+
     includedNode->AddApplication (beaconApp);
 
     return includedNode;
@@ -177,19 +220,33 @@ main (int argc, char *argv[])
    *  ns-3 app must be terminated and ns-3 node (vehicle) will be 
    *  put away ('removed') from the simulation scenario
    */
-  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [] (Ptr<Node> exNode) {
+  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
     Ptr<BeaconApp> c_app = DynamicCast<BeaconApp> (exNode->GetApplication (0));
     c_app->StopApplication ();
 
     // put the node in new position, outside the simulation communication range
     Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
-    mob->SetPosition (Vector (0.0, (double) exNode->GetId (), -5000.0));
-    //mob->SetPosition (Vector (0.0, 5000 + (rand () % 25), 5000.0)); // rand() for visualization purposes
+    mob->SetPosition (Vector ((double) exNode->GetId (),
+                              sumoMapBoundaries.at (1) - 5000 - (rand () % 25), -5000.0));
 
     // NOTE: further actions could be required for a save shutdown!
   };
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
+
+  /* create RSU node container */
+  NS_LOG_INFO ("Installing RSUs... ");
+  NodeContainer rsuContainer;
+  rsuContainer.Create (nRSUs);
+
+  // RSU mobility model
+  //MobilityHelper mobility;
+  //mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+  //mobility.Install (rsuContainer);
+  // set up initial positions and velocities
+  //Ptr<ConstantPositionMobilityModel> cvmm = DynamicCast<ConstantPositionMobilityModel> (
+  //    rsuContainer.Get (0)->GetObject<MobilityModel> ());
+  //cvmm->SetPosition (Vector (0, 0, 3));
 
   // install Ndn stack
   std::cout << "Installing Ndn stack on all nodes in the simulation... " << std::endl;

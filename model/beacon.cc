@@ -25,17 +25,21 @@ NS_LOG_COMPONENT_DEFINE ("ndn.Beacon");
 
 namespace ndn {
 
-Beacon::Beacon (uint32_t frequency)
+Beacon::Beacon (uint32_t frequency, ns3::Ptr<ns3::TraciClient> &traci)
     : m_scheduler (m_face.getIoService ()),
       m_rand (ns3::CreateObject<ns3::UniformRandomVariable> ()),
       m_seq (0),
-      m_frequency (frequency)
+      m_frequency (frequency),
+      m_traci (traci)
 {
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
   RegisterPrefixes ();
   m_scheduler.schedule (ndn::time::seconds (1), [this] { PrintFib (); });
   m_face.setInterestFilter (BEACONPREFIX, std::bind (&Beacon::ProcessInterest, this, _2),
                             std::bind ([] {}), std::bind ([] {}));
+
+  thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
+  //std::cout << "\t--->" << m_traci->GetVehicleId (thisNode) << std::endl; // testing TraCI
 }
 
 uint64_t
@@ -189,7 +193,7 @@ Beacon::SendBeaconInterest ()
   // if (ns3::Mac48Address::IsMatchingType (addr))
 
   std::string straddr = boost::lexical_cast<std::string> (ns3::Mac48Address::ConvertFrom (addr));
-  NS_LOG_DEBUG ("Encoding MAC address (" << straddr << " to send via ApplicationParameters");
+  NS_LOG_DEBUG ("Encoding MAC address (" << straddr << ") to send via ApplicationParameters");
   interest.setApplicationParameters (reinterpret_cast<const uint8_t *> (straddr.data ()),
                                      straddr.size ());
 

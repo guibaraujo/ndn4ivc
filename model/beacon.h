@@ -29,6 +29,7 @@
 
 #include "ns3/network-module.h"
 #include "ns3/wifi-phy.h"
+#include "ns3/traci-client.h"
 
 #include "neighbor-info.h"
 
@@ -43,7 +44,7 @@ static const Name BEACONPREFIX = Name ("/localhop/beacon/");
 class Beacon
 {
 public:
-  Beacon (uint32_t m_frequency);
+  Beacon (uint32_t m_frequency, ns3::Ptr<ns3::TraciClient> &m_traci);
   void run ();
   void start ();
   void stop ();
@@ -82,6 +83,10 @@ private:
   uint32_t m_seq;
   uint32_t m_nodeId;
   uint32_t m_frequency; // @brief frequency of beacons (in milliseconds)
+
+  ns3::Ptr<ns3::TraciClient> m_traci; // @brief sumo client - TraCI
+
+  ns3::Ptr<ns3::Node> thisNode;
 
   NeighborMap m_neighbors; // @brief neighbors' info*/
 

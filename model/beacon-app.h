@@ -16,6 +16,8 @@
 #include "ns3/ndnSIM/helper/ndn-stack-helper.hpp"
 #include "ns3/application.h"
 
+#include "ns3/traci-client.h"
+
 namespace ns3 {
 
 /**
@@ -27,6 +29,7 @@ class BeaconApp : public Application
 private:
   std::unique_ptr<::ndn::Beacon> m_instance;
   uint32_t m_frequency;
+  Ptr<TraciClient> m_traci;
 
 public:
   static TypeId
@@ -38,7 +41,10 @@ public:
             .AddConstructor<BeaconApp> ()
             .AddAttribute ("Frequency", "Frequency of interest packets", StringValue ("1000"),
                            MakeUintegerAccessor (&BeaconApp::m_frequency),
-                           MakeUintegerChecker<uint32_t> ());
+                           MakeUintegerChecker<uint32_t> ())
+            .AddAttribute ("Client", "TraCI client for SUMO", PointerValue (0),
+                           MakePointerAccessor (&BeaconApp::m_traci),
+                           MakePointerChecker<TraciClient> ());
 
     return tid;
   }
@@ -48,7 +54,7 @@ public:
   StartApplication ()
   {
     // create an instance of the app
-    m_instance.reset (new ::ndn::Beacon (m_frequency));
+    m_instance.reset (new ::ndn::Beacon (m_frequency, m_traci));
     m_instance->run (); // can be omitted
     m_instance->start ();
   }
