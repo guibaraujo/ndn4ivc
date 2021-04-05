@@ -8,8 +8,8 @@
 
 ## **Preparing**
 - Install SUMO version 1.1.0\
-https://sumo.dlr.de/docs/index.html\
-https://sumo.dlr.de/docs/Installing\
+https://sumo.dlr.de/docs/index.html \
+https://sumo.dlr.de/docs/Installing \
 https://sourceforge.net/projects/sumo/files/sumo/version%201.1.0
 
 - Install ns-3 v3.30.1 & ndnSIM v2.8\
@@ -21,9 +21,7 @@ cd ~; mkdir ndnSIM; cd ndnSIM
 ```
 ```sh
 git clone -b ndnSIM-ns-3.30.1 https://github.com/named-data-ndnSIM/ns-3-dev.git ns-3
-
 git clone -b 0.21.0 https://github.com/named-data-ndnSIM/pybindgen.git pybindgen
-
 git clone -b ndnSIM-2.8 --recursive https://github.com/named-data-ndnSIM/ndnSIM ns-3/src/ndnSIM
 ```
 ```sh
@@ -40,9 +38,7 @@ After installing ns-3 and SUMO, inside `ndnSIM/ns-3/src` folder directory, run:
 
 ```sh
 git clone https://github.com/vodafone-chair/ns3-sumo-coupling.git src/ns3-sumo-coupling
-
 mv src/ns3-sumo-coupling/traci* src/; rm -fr src/ns3-sumo-coupling/
-
 git clone https://github.com/guibaraujo/NDN4IVC.git contrib/ndn4ivc
 ```
 

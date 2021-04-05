@@ -199,8 +199,12 @@ Beacon::SendBeaconInterest ()
       interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
       [] (const Interest &) {});
 
+  ns3::Ptr<ns3::UniformRandomVariable> delay =
+      ns3::CreateObject<ns3::UniformRandomVariable> (); ///< @brief reduce collision
+
   m_sendBeaconEvent =
-      m_scheduler.schedule (time::milliseconds (m_frequency), [this] { SendBeaconInterest (); });
+      m_scheduler.schedule (time::milliseconds (m_frequency + delay->GetInteger (0.0, 500.0)),
+                            [this] { SendBeaconInterest (); });
 }
 
 void
@@ -245,6 +249,7 @@ Beacon::start ()
 void
 Beacon::stop ()
 {
+  NS_LOG_DEBUG ("Stopping Beacon application...");
   PrintNeighbors ();
 }
 

@@ -123,9 +123,10 @@ main (int argc, char *argv[])
   /*** setup mobility and position to node pool ***/
   MobilityHelper mobility;
   Ptr<UniformDiscPositionAllocator> positionAlloc = CreateObject<UniformDiscPositionAllocator> ();
-  positionAlloc->SetX (400.0);
-  positionAlloc->SetY (1500.0);
-  positionAlloc->SetRho (25.0);
+  positionAlloc->SetX (0.0);
+  positionAlloc->SetY (0.0);
+  positionAlloc->SetZ (-5000.0);
+  positionAlloc->SetRho (10.0);
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
@@ -182,8 +183,8 @@ main (int argc, char *argv[])
 
     // put the node in new position, outside the simulation communication range
     Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
-    mob->SetPosition (Vector (-100.0 + (rand () % 25), 320.0 + (rand () % 25),
-                              250.0)); // rand() for visualization purposes
+    mob->SetPosition (Vector (0.0, (double) exNode->GetId (), -5000.0));
+    //mob->SetPosition (Vector (0.0, 5000 + (rand () % 25), 5000.0)); // rand() for visualization purposes
 
     // NOTE: further actions could be required for a save shutdown!
   };
