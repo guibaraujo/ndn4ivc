@@ -126,7 +126,7 @@ main (int argc, char *argv[])
   positionAlloc->SetX (0.0);
   positionAlloc->SetY (0.0);
   positionAlloc->SetZ (-5000.0);
-  positionAlloc->SetRho (10.0);
+  positionAlloc->SetRho (20.0);
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
