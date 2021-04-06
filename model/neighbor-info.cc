@@ -2,7 +2,7 @@
 
 namespace ndn {
 
-NeighborInfo::NeighborInfo (uint32_t id) : m_id (id)
+NeighborInfo::NeighborInfo (uint32_t id) : m_id (id), m_speed (0)
 {
 }
 
@@ -24,6 +24,18 @@ uint32_t
 NeighborInfo::GetId ()
 {
   return m_id;
+}
+
+void
+NeighborInfo::SetSpeed (const double speed)
+{
+  m_speed = speed;
+}
+
+double
+NeighborInfo::GetSpeed ()
+{
+  return m_speed;
 }
 
 void

@@ -21,6 +21,8 @@ private:
   ns3::Mac48Address m_mac;
   ns3::Time m_lastBeacon;
 
+  double m_speed;
+
   /* future implementation*/
   char m_mainDirection;
   double m_distance;
@@ -33,6 +35,9 @@ public:
   void SetId (const uint32_t id);
   uint32_t GetId ();
 
+  void SetSpeed (const double speed);
+  double GetSpeed ();
+
   void SetPosition (const ns3::Vector &position);
   ns3::Vector GetPosition ();
 
@@ -41,7 +46,6 @@ public:
 
   void SetLastBeacon (const ns3::Time &lastBeacon);
   ns3::Time GetLastBeacon ();
-  
 };
 
 } // namespace ndn

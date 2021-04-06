@@ -19,7 +19,6 @@ def build(bld):
         'helper/wifi-setup-helper.cc',
         'model/beacon.cc',
         'model/neighbor-info.cc',
-        'model/unicast-net-device-transport.cc',
         'model/localhop-strategy.cc'
     ]
 
@@ -30,7 +29,6 @@ def build(bld):
         'model/beacon-app.h',
         'model/beacon.h',
         'model/neighbor-info.h',
-        'model/unicast-net-device-transport.h',
         'model/localhop-strategy.h'
     ]
 

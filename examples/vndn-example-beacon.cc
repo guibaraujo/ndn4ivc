@@ -118,8 +118,8 @@ main (int argc, char *argv[])
   bool enableLog = true;
   bool enableSumoGui = false;
 
-  std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
   std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
+  std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
 
   // command line attibutes
   CommandLine cmd;
@@ -139,7 +139,7 @@ main (int argc, char *argv[])
 
   /* create node pool and counter; large enough to cover all sumo vehicles */
   NodeContainer nodePool;
-  nodePool.Create (nVehicles);
+  nodePool.Create (nVehicles + nRSUs);
   uint32_t nodeCounter (0);
 
   // install wifi & set up
@@ -151,14 +151,12 @@ main (int argc, char *argv[])
    * 
    * Ref.: doi: 10.1109/VETECF.2007.461
    */
-  std::cout << "Installing network devices in vehicles... " << std::endl;
+  std::cout << "Installing networking devices for every node... " << std::endl;
   ndn::WifiSetupHelper wifi;
   NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enableLog);
-  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
-               ns3::UintegerValue (SCH3));
 
   // install mobility model
-  std::cout << "Setting up mobility & TraCI... " << std::endl;
+  std::cout << "Setting up vehicles' mobility" << std::endl;
 
   /*** setup mobility and position to node pool ***/
   MobilityHelper mobility;
@@ -170,6 +168,18 @@ main (int argc, char *argv[])
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
+
+  /* create and setup RSU */
+  std::cout << "Configuring RSUs..." << std::endl;
+  //ApplicationContainer rsuSpeedControlApps = rsuSpeedControlHelper.Install (nodePool.Get (0));
+  //rsuSpeedControlApps.Start (Seconds (1.0));
+  //rsuSpeedControlApps.Stop (simulationTime);
+
+  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
+  nodeCounter++;
+  //mobilityRsuNode->SetPosition (Vector (70, 70, 3.0)); // set RSU to fixed position
+  mobilityRsuNode->SetPosition (Vector (((sumoMapBoundaries.at (1) + sumoMapBoundaries.at (3)) / 2),
+                                        70, 3.0)); // set RSU to fixed position
 
   /*** setup Traci and start SUMO ***/
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
@@ -205,7 +215,7 @@ main (int argc, char *argv[])
     NS_LOG_INFO ("Node/vehicle " << nodeCounter << " is starting now at "
                                  << ns3::Simulator::Now ());
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
-    ++nodeCounter;
+    nodeCounter++;
     Ptr<BeaconApp> beaconApp = CreateObject<BeaconApp> ();
     beaconApp->SetAttribute ("Frequency", UintegerValue (beaconInterval)); // in milliseconds
     beaconApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
@@ -234,20 +244,6 @@ main (int argc, char *argv[])
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
 
-  /* create RSU node container */
-  NS_LOG_INFO ("Installing RSUs... ");
-  NodeContainer rsuContainer;
-  rsuContainer.Create (nRSUs);
-
-  // RSU mobility model
-  //MobilityHelper mobility;
-  //mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-  //mobility.Install (rsuContainer);
-  // set up initial positions and velocities
-  //Ptr<ConstantPositionMobilityModel> cvmm = DynamicCast<ConstantPositionMobilityModel> (
-  //    rsuContainer.Get (0)->GetObject<MobilityModel> ());
-  //cvmm->SetPosition (Vector (0, 0, 3));
-
   // install Ndn stack
   std::cout << "Installing Ndn stack on all nodes in the simulation... " << std::endl;
   ndn::StackHelper ndnHelper;
@@ -257,6 +253,10 @@ main (int argc, char *argv[])
   ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
   ndn::StrategyChoiceHelper::Install (nodePool, "/localhop/beacon",
                                       "/localhost/nfd/strategy/localhop");
+
+  // config
+  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
+               ns3::UintegerValue (SCH3));
 
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
   Simulator::Stop (Seconds (simTime));

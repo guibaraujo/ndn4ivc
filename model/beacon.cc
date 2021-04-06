@@ -39,7 +39,6 @@ Beacon::Beacon (uint32_t frequency, ns3::Ptr<ns3::TraciClient> &traci)
                             std::bind ([] {}), std::bind ([] {}));
 
   thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  //std::cout << "\t--->" << m_traci->GetVehicleId (thisNode) << std::endl; // testing TraCI
 }
 
 uint64_t
@@ -72,6 +71,8 @@ Beacon::isValidBeacon (const Name &name, NeighborInfo &neighbor)
       y = std::stod ((std::string) name.get (2).toUri ());
       z = std::stod ((std::string) name.get (3).toUri ());
       neighbor.SetPosition (ns3::Vector (x, y, z));
+
+      neighbor.SetSpeed (std::stod ((std::string) name.get (4).toUri ()));
 
   } catch (const std::exception &e)
     {
@@ -135,7 +136,8 @@ Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
 {
   NS_LOG_DEBUG ("Processing a beacon from incomming face " << inFaceId);
   NeighborInfo neighbor = NeighborInfo ();
-  if (!isValidBeacon (interest.getName ().getSubName (BEACONPREFIX.size (), 4).toUri (), neighbor))
+  // working with name prefix Uri
+  if (!isValidBeacon (interest.getName ().getSubName (BEACONPREFIX.size (), 5).toUri (), neighbor))
     {
       NS_LOG_INFO ("Beacon invalid, ignoring...");
       std::cout << neighbor.GetId ();
@@ -175,7 +177,7 @@ Beacon::SendBeaconInterest ()
   auto addr = thisNode->GetDevice (0)->GetAddress ();
   NS_ASSERT_MSG (ns3::Mac48Address::IsMatchingType (addr), "Invalid MAC address");
 
-  // name schema /localhop/beacon/<sender-id>/<pos-x>/<pos-y>/<pos-z>/
+  // name schema /localhop/beacon/<sender-node-id>/<pos-x>/<pos-y>/<pos-z>/<speed>/
   Name name = Name (BEACONPREFIX);
   name.append (std::to_string (thisNode->GetId ())); // sender-id
   name.append (
@@ -184,6 +186,8 @@ Beacon::SendBeaconInterest ()
       std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y)); // pos y
   name.append (
       std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z)); // pos z
+  name.append (std::to_string (
+      m_traci->TraCIAPI::vehicle.getSpeed (m_traci->GetVehicleId (thisNode)))); // vehicle speed
 
   Interest interest = Interest ();
   interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
