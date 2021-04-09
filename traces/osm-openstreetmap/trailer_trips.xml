@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- generated on 2021-03-15 14:31:00.010513 by $Id$
+<!-- generated on 2021-04-07 08:14:35.859345 by $Id$
   options: -n map.net.xml -r trailer_routes.rou.xml -o trailer_trips.xml -e 300 -p 150 <doubleminus>vehicle-class trailer <doubleminus>trip-attributes=color="223,179,180" accel="0.5"
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="trailer" vClass="trailer" color="223,179,180" accel="0.5"/>
-    <trip id="0" depart="0.00" from="812662182#6" to="-99624828#0" type="trailer"/>
-    <trip id="1" depart="150.00" from="-31312839#1" to="-145307510#1" type="trailer"/>
+    <trip id="0" depart="0.00" from="31263361#0" to="396229579#0" type="trailer"/>
+    <trip id="1" depart="150.00" from="-44617692#1" to="160892854#1" type="trailer"/>
 </routes>

@@ -1,13 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
-// ███╗░░██╗██████╗░███╗░░██╗░░██╗██╗██╗██╗░░░██╗░█████╗░
-// ████╗░██║██╔══██╗████╗░██║░██╔╝██║██║██║░░░██║██╔══██╗
-// ██╔██╗██║██║░░██║██╔██╗██║██╔╝░██║██║╚██╗░██╔╝██║░░╚═╝
-// ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
-// ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
-// ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
-// https://github.com/guibaraujo/NDN4IVC
-
 #ifndef BEACON_H
 #define BEACON_H
 
@@ -85,8 +77,6 @@ private:
   uint32_t m_frequency; // @brief frequency of beacons (in milliseconds)
 
   ns3::Ptr<ns3::TraciClient> m_traci; // @brief sumo client - TraCI
-
-  ns3::Ptr<ns3::Node> thisNode;
 
   NeighborMap m_neighbors; // @brief neighbors' info*/
 

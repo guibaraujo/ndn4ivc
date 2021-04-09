@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- generated on 2021-03-15 14:30:57.557062 by $Id$
+<!-- generated on 2021-04-07 08:14:33.511764 by $Id$
   options: -n map.net.xml -r delivery_routes.rou.xml -o delivery_trips.xml -e 300 -p 30 <doubleminus>vehicle-class delivery <doubleminus>trip-attributes=color="115,211,230"
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="delivery" vClass="delivery" color="115,211,230"/>
-    <trip id="0" depart="0.00" from="165886068#4" to="396232538#2" type="delivery"/>
-    <trip id="1" depart="30.00" from="112571146#1" to="390770586" type="delivery"/>
-    <trip id="2" depart="60.00" from="133747105" to="365218502" type="delivery"/>
-    <trip id="3" depart="90.00" from="-463054745" to="354120404#0" type="delivery"/>
-    <trip id="4" depart="120.00" from="813962437#4" to="-95895493#1" type="delivery"/>
-    <trip id="5" depart="150.00" from="30967936#3" to="-390776376#0" type="delivery"/>
-    <trip id="6" depart="180.00" from="48826786#1" to="474375214#1" type="delivery"/>
-    <trip id="7" depart="210.00" from="-31312839#3" to="-48846523" type="delivery"/>
-    <trip id="8" depart="240.00" from="396232536" to="396060105#5" type="delivery"/>
-    <trip id="9" depart="270.00" from="831787975" to="49236317#3" type="delivery"/>
+    <trip id="0" depart="0.00" from="48846511#1" to="886563423#1" type="delivery"/>
+    <trip id="1" depart="30.00" from="-48846508#2" to="30964625#6" type="delivery"/>
+    <trip id="2" depart="60.00" from="396220342" to="-396067910#16" type="delivery"/>
+    <trip id="3" depart="90.00" from="131510689#1" to="-76743738" type="delivery"/>
+    <trip id="4" depart="120.00" from="44474503#3" to="160892854#0" type="delivery"/>
+    <trip id="5" depart="150.00" from="-145298461#0" to="-686469802#7" type="delivery"/>
+    <trip id="6" depart="180.00" from="425099101#0" to="162438566#0" type="delivery"/>
+    <trip id="7" depart="210.00" from="-238961507#2" to="812654517#4" type="delivery"/>
+    <trip id="8" depart="240.00" from="662246625" to="30964625#12" type="delivery"/>
+    <trip id="9" depart="270.00" from="-48846492#2" to="390776376#1" type="delivery"/>
 </routes>

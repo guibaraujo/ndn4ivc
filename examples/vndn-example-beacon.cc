@@ -36,14 +36,18 @@
 #define END_CODE "\033[0m"
 
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
-#define SUMO_SCENARIO_NAME "intersection"
+//#define SUMO_SCENARIO_NAME "intersection"
+//#define SUMO_SCENARIO_NAME "highway"
+//#define SUMO_SCENARIO_NAME "grid"
+//#define SUMO_SCENARIO_NAME "osm-openstreetmap"
+#define SUMO_SCENARIO_NAME "multi-lane"
 
 #define SHELLSCRIPT_NUM_VEHICLES                      \
   "\
 #/bin/bash \n\
 #echo $1 \n\
 echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/routes.rou.xml |grep 'vehicle id'|wc -l` \n\
+  "/*.rou.xml |grep 'vehicle id'|wc -l` \n\
 "
 
 #define SHELLSCRIPT_SUMOMAP_BOUNDARIES                \
@@ -51,7 +55,7 @@ echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
 #/bin/bash \n\
 #echo $1 \n\
 echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/map.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
+  "/*.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
 "
 
 using namespace ns3;
@@ -105,10 +109,7 @@ main (int argc, char *argv[])
   std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
   std::cout << "SUMO map boundaries: C1(" << sumoMapBoundaries.at (0) << ","
             << sumoMapBoundaries.at (1) << ") C2(" << sumoMapBoundaries.at (2) << ","
-            << sumoMapBoundaries.at (3) << ")," << std::endl;
-
-  if (!nVehicles || sumoMapBoundaries.size () < 4)
-    throw std::runtime_error ("SUMO failed!");
+            << sumoMapBoundaries.at (3) << ")" << std::endl;
 
   uint32_t nRSUs = 1;
 
@@ -120,6 +121,9 @@ main (int argc, char *argv[])
 
   std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
   std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
+
+  if (!nVehicles || sumoMapBoundaries.size () < 4)
+    throw std::runtime_error ("SUMO failed!");
 
   // command line attibutes
   CommandLine cmd;
@@ -151,12 +155,12 @@ main (int argc, char *argv[])
    * 
    * Ref.: doi: 10.1109/VETECF.2007.461
    */
-  std::cout << "Installing networking devices for every node... " << std::endl;
+  std::cout << "Installing networking devices for every node..." << std::endl;
   ndn::WifiSetupHelper wifi;
   NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enableLog);
 
   // install mobility model
-  std::cout << "Setting up vehicles' mobility" << std::endl;
+  std::cout << "Setting up mobility... " << std::endl;
 
   /*** setup mobility and position to node pool ***/
   MobilityHelper mobility;
@@ -169,8 +173,7 @@ main (int argc, char *argv[])
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
 
-  /* create and setup RSU */
-  std::cout << "Configuring RSUs..." << std::endl;
+  /* setup RSU */
   //ApplicationContainer rsuSpeedControlApps = rsuSpeedControlHelper.Install (nodePool.Get (0));
   //rsuSpeedControlApps.Start (Seconds (1.0));
   //rsuSpeedControlApps.Stop (simulationTime);
@@ -242,10 +245,8 @@ main (int argc, char *argv[])
     // NOTE: further actions could be required for a save shutdown!
   };
 
-  sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
-
   // install Ndn stack
-  std::cout << "Installing Ndn stack on all nodes in the simulation... " << std::endl;
+  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
   ndn::StackHelper ndnHelper;
   ndnHelper.SetDefaultRoutes (true);
   ndnHelper.InstallAll ();
@@ -259,6 +260,8 @@ main (int argc, char *argv[])
                ns3::UintegerValue (SCH3));
 
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
+
+  sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();
 

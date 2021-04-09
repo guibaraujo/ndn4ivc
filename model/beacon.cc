@@ -32,13 +32,10 @@ Beacon::Beacon (uint32_t frequency, ns3::Ptr<ns3::TraciClient> &traci)
       m_frequency (frequency),
       m_traci (traci)
 {
-  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
   RegisterPrefixes ();
   m_scheduler.schedule (ndn::time::seconds (1), [this] { PrintFib (); });
   m_face.setInterestFilter (BEACONPREFIX, std::bind (&Beacon::ProcessInterest, this, _2),
                             std::bind ([] {}), std::bind ([] {}));
-
-  thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
 }
 
 uint64_t
@@ -65,15 +62,16 @@ Beacon::isValidBeacon (const Name &name, NeighborInfo &neighbor)
 {
   try
     {
-      neighbor.SetId (std::stoi ((std::string) name.get (0).toUri ()));
+      /*mexer aqui (std::string)???*/
+      neighbor.SetId (std::stoi (name.get (0).toUri ())); //<node-type>
+      neighbor.SetType (name.get (1).toUri ()); //<node-id>
+      neighbor.SetRoad (name.get (2).toUri ()); //<road-id>
+
       double x, y, z;
-      x = std::stod ((std::string) name.get (1).toUri ());
-      y = std::stod ((std::string) name.get (2).toUri ());
-      z = std::stod ((std::string) name.get (3).toUri ());
-      neighbor.SetPosition (ns3::Vector (x, y, z));
-
-      neighbor.SetSpeed (std::stod ((std::string) name.get (4).toUri ()));
-
+      x = std::stod (name.get (3).toUri ());
+      y = std::stod (name.get (4).toUri ());
+      z = std::stod (name.get (5).toUri ());
+      neighbor.SetPosition (ns3::Vector (x, y, z)); //<pos-x>/<pos-y>/<pos-z>
   } catch (const std::exception &e)
     {
       return false;
@@ -105,7 +103,7 @@ Beacon::PrintNeighbors ()
   NS_LOG_DEBUG ("# known neighbors: " << m_neighbors.size ());
   for (auto it = m_neighbors.begin (); it != m_neighbors.end (); ++it)
     {
-      NS_LOG_DEBUG ("Neighbor=" << it->second.GetId () << ", mac=" << it->second.GetMac ()
+      NS_LOG_DEBUG ("Neighbor=" << it->second.GetId () << ", type=" << it->second.GetType ()
                                 << ", last seen > simtime=" << it->second.GetLastBeacon ());
     }
 }
@@ -135,9 +133,11 @@ void
 Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
 {
   NS_LOG_DEBUG ("Processing a beacon from incomming face " << inFaceId);
+  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
   NeighborInfo neighbor = NeighborInfo ();
-  // working with name prefix Uri
-  if (!isValidBeacon (interest.getName ().getSubName (BEACONPREFIX.size (), 5).toUri (), neighbor))
+
+  // working with specific name prefix Uri
+  if (!isValidBeacon (interest.getName ().getSubName (BEACONPREFIX.size (), 6).toUri (), neighbor))
     {
       NS_LOG_INFO ("Beacon invalid, ignoring...");
       std::cout << neighbor.GetId ();
@@ -145,11 +145,40 @@ Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
     }
 
   // Beacon is ok, continue...
-  std::string neighborMac;
-  neighborMac.assign ((char *) interest.getApplicationParameters ().value (),
-                      interest.getApplicationParameters ().value_size ());
-  neighbor.SetMac (ns3::Mac48Address (neighborMac.c_str ()));
+  std::string neighborSpeed;
+  neighborSpeed.assign ((char *) interest.getApplicationParameters ().value (),
+                        interest.getApplicationParameters ().value_size ());
+  neighbor.SetSpeed (stof (neighborSpeed));
   neighbor.SetLastBeacon ((ns3::Time) ns3::Simulator::Now ().GetMilliSeconds ());
+
+  if (m_traci->TraCIAPI::vehicle.getVehicleClass (m_traci->GetVehicleId (thisNode))
+              .compare ("emergency") != 0 &&
+      neighbor.GetType ().compare ("emergency") == 0)
+    {
+      NS_LOG_DEBUG (
+          "Type=" << m_traci->TraCIAPI::vehicle.getVehicleClass (m_traci->GetVehicleId (thisNode)));
+
+      std::string myRoad = m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode));
+      if (myRoad.compare (neighbor.GetRoad ()) == 0) // if emergency vehicle in the same road
+        {
+          //TraCIAPI::edge.getLaneNumber(m_traci->gets); se mais que duas vias escolhe uma aleaótia
+          // se só uma lane nao diminuir velocidade
+
+          //std::cout << "\n\n\t**************TEST**> " << thisNode->GetId () << "\n\n";
+          // aleatorio outras faixas e deixar faixa maior livre ambulancia
+          m_traci->TraCIAPI::vehicle.changeLane (m_traci->GetVehicleId (thisNode), 0,
+                                                 m_frequency / 100);
+          m_traci->TraCIAPI::vehicle.setSpeed (m_traci->GetVehicleId (thisNode), 1);
+          //escalonar uma funcao para voltar a velocidade
+        }
+    }
+  else
+    {
+      std::string strLaneId =
+          m_traci->TraCIAPI::vehicle.getLaneID (m_traci->GetVehicleId (thisNode));
+      //m_traci->TraCIAPI::vehicle.setSpeed (m_traci->GetVehicleId (thisNode),
+      //m_traci->TraCIAPI::lane.getMaxSpeed (strLaneId));
+    }
 
   if (m_neighbors.find (neighbor.GetId ()) == m_neighbors.end ())
     {
@@ -177,29 +206,32 @@ Beacon::SendBeaconInterest ()
   auto addr = thisNode->GetDevice (0)->GetAddress ();
   NS_ASSERT_MSG (ns3::Mac48Address::IsMatchingType (addr), "Invalid MAC address");
 
-  // name schema /localhop/beacon/<sender-node-id>/<pos-x>/<pos-y>/<pos-z>/<speed>/
+  // name schema Beacon App >> /localhop/beacon/<node-id>/<node-type>/<road-id>/<pos-x>/<pos-y>/<pos-z>/<speed>
   Name name = Name (BEACONPREFIX);
-  name.append (std::to_string (thisNode->GetId ())); // sender-id
+  name.append (std::to_string (thisNode->GetId ())); //<node-id>
+  name.append (m_traci->TraCIAPI::vehicle.getVehicleClass (
+      m_traci->GetVehicleId (ns3::NodeList::GetNode (thisNode->GetId ())))); //<node-type>
+  name.append (m_traci->TraCIAPI::vehicle.getRoadID (
+      m_traci->GetVehicleId (ns3::NodeList::GetNode (thisNode->GetId ())))); //<road-id>
+
   name.append (
-      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x)); // pos x
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x)); ///<pos-x>
   name.append (
-      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y)); // pos y
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().y)); //<pos-y>
   name.append (
-      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z)); // pos z
-  name.append (std::to_string (
-      m_traci->TraCIAPI::vehicle.getSpeed (m_traci->GetVehicleId (thisNode)))); // vehicle speed
+      std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().z)); //<pos-z>
 
   Interest interest = Interest ();
   interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
   interest.setName (name);
   interest.setCanBePrefix (false);
   interest.setInterestLifetime (time::milliseconds (0));
-  // if (ns3::Mac48Address::IsMatchingType (addr))
 
-  std::string straddr = boost::lexical_cast<std::string> (ns3::Mac48Address::ConvertFrom (addr));
-  NS_LOG_DEBUG ("Encoding MAC address (" << straddr << ") to send via ApplicationParameters");
-  interest.setApplicationParameters (reinterpret_cast<const uint8_t *> (straddr.data ()),
-                                     straddr.size ());
+  std::string strSpeed =
+      std::to_string (m_traci->TraCIAPI::vehicle.getSpeed (m_traci->GetVehicleId (thisNode)));
+  NS_LOG_DEBUG ("Encoding vehicle speed (" << strSpeed << ") to send via ApplicationParameters");
+  interest.setApplicationParameters (reinterpret_cast<const uint8_t *> (strSpeed.data ()),
+                                     strSpeed.size ());
 
   NS_LOG_INFO ("Sending a interest name: " << name);
 

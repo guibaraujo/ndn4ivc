@@ -16,16 +16,14 @@ class NeighborInfo
 private:
   uint32_t m_id;
 
-  ns3::Vector m_position;
+  std::string m_type; // @brief bus, delivery, passenger, trailer, truck
+  std::string m_road;
 
-  ns3::Mac48Address m_mac;
-  ns3::Time m_lastBeacon;
+  ns3::Vector m_position;
 
   double m_speed;
 
-  /* future implementation*/
-  char m_mainDirection;
-  double m_distance;
+  ns3::Time m_lastBeacon;
 
 public:
   NeighborInfo ();
@@ -35,14 +33,17 @@ public:
   void SetId (const uint32_t id);
   uint32_t GetId ();
 
+  void SetType (const std::string type);
+  std::string GetType ();
+
+  void SetRoad (const std::string road);
+  std::string GetRoad ();
+
   void SetSpeed (const double speed);
   double GetSpeed ();
 
   void SetPosition (const ns3::Vector &position);
   ns3::Vector GetPosition ();
-
-  void SetMac (const ns3::Mac48Address &mac);
-  ns3::Mac48Address GetMac ();
 
   void SetLastBeacon (const ns3::Time &lastBeacon);
   ns3::Time GetLastBeacon ();

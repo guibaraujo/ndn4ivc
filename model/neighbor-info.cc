@@ -27,6 +27,30 @@ NeighborInfo::GetId ()
 }
 
 void
+NeighborInfo::SetType (const std::string type)
+{
+  m_type = type;
+}
+
+std::string
+NeighborInfo::GetType ()
+{
+  return m_type;
+}
+
+void
+NeighborInfo::SetRoad (const std::string road)
+{
+  m_road = road;
+}
+
+std::string
+NeighborInfo::GetRoad ()
+{
+  return m_road;
+}
+
+void
 NeighborInfo::SetSpeed (const double speed)
 {
   m_speed = speed;
@@ -48,18 +72,6 @@ ns3::Vector
 NeighborInfo::GetPosition ()
 {
   return m_position;
-}
-
-void
-NeighborInfo::SetMac (const ns3::Mac48Address &mac)
-{
-  m_mac = mac;
-}
-
-ns3::Mac48Address
-NeighborInfo::GetMac ()
-{
-  return m_mac;
 }
 
 void
