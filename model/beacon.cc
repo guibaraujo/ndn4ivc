@@ -30,6 +30,7 @@ Beacon::Beacon (uint32_t frequency, ns3::Ptr<ns3::TraciClient> &traci)
       m_rand (ns3::CreateObject<ns3::UniformRandomVariable> ()),
       m_seq (0),
       m_frequency (frequency),
+      m_lastSpeedChange (0),
       m_traci (traci)
 {
   RegisterPrefixes ();
@@ -104,7 +105,7 @@ Beacon::PrintNeighbors ()
   for (auto it = m_neighbors.begin (); it != m_neighbors.end (); ++it)
     {
       NS_LOG_DEBUG ("Neighbor=" << it->second.GetId () << ", type=" << it->second.GetType ()
-                                << ", last seen > simtime=" << it->second.GetLastBeacon ());
+                                << ", last seen at simtime=" << it->second.GetLastBeacon ());
     }
 }
 
@@ -140,7 +141,6 @@ Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
   if (!isValidBeacon (interest.getName ().getSubName (BEACONPREFIX.size (), 6).toUri (), neighbor))
     {
       NS_LOG_INFO ("Beacon invalid, ignoring...");
-      std::cout << neighbor.GetId ();
       return;
     }
 
@@ -161,15 +161,16 @@ Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
       std::string myRoad = m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode));
       if (myRoad.compare (neighbor.GetRoad ()) == 0) // if emergency vehicle in the same road
         {
-          //TraCIAPI::edge.getLaneNumber(m_traci->gets); se mais que duas vias escolhe uma aleaótia
-          // se só uma lane nao diminuir velocidade
+          int numLanes = m_traci->TraCIAPI::edge.getLaneNumber (myRoad);
+          if (numLanes > 1)
+            {
+              m_traci->TraCIAPI::vehicle.changeLane (m_traci->GetVehicleId (thisNode),
+                                                     m_rand->GetInteger (0, numLanes - 1),
+                                                     m_frequency / 100);
+              m_traci->TraCIAPI::vehicle.setSpeed (m_traci->GetVehicleId (thisNode), 1);
 
-          //std::cout << "\n\n\t**************TEST**> " << thisNode->GetId () << "\n\n";
-          // aleatorio outras faixas e deixar faixa maior livre ambulancia
-          m_traci->TraCIAPI::vehicle.changeLane (m_traci->GetVehicleId (thisNode), 0,
-                                                 m_frequency / 100);
-          m_traci->TraCIAPI::vehicle.setSpeed (m_traci->GetVehicleId (thisNode), 1);
-          //escalonar uma funcao para voltar a velocidade
+              m_lastSpeedChange = (ns3::Time) ns3::Simulator::Now ().GetMilliSeconds ();
+            }
         }
     }
   else
@@ -203,8 +204,13 @@ Beacon::SendBeaconInterest ()
   ++m_seq; // just for control
 
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  auto addr = thisNode->GetDevice (0)->GetAddress ();
-  NS_ASSERT_MSG (ns3::Mac48Address::IsMatchingType (addr), "Invalid MAC address");
+
+  // check speed change
+  if (m_lastSpeedChange != 0 &&
+      (ns3::Time) ns3::Simulator::Now ().GetMilliSeconds () - m_lastSpeedChange > 5 * m_frequency)
+    m_traci->TraCIAPI::vehicle.setSpeed (
+        m_traci->GetVehicleId (thisNode),
+        m_traci->TraCIAPI::vehicle.getMaxSpeed (m_traci->GetVehicleId (thisNode)));
 
   // name schema Beacon App >> /localhop/beacon/<node-id>/<node-type>/<road-id>/<pos-x>/<pos-y>/<pos-z>/<speed>
   Name name = Name (BEACONPREFIX);
@@ -229,7 +235,8 @@ Beacon::SendBeaconInterest ()
 
   std::string strSpeed =
       std::to_string (m_traci->TraCIAPI::vehicle.getSpeed (m_traci->GetVehicleId (thisNode)));
-  NS_LOG_DEBUG ("Encoding vehicle speed (" << strSpeed << ") to send via ApplicationParameters");
+  NS_LOG_DEBUG ("Encoding vehicle speed (" << strSpeed
+                                           << " m/s) to send via ApplicationParameters");
   interest.setApplicationParameters (reinterpret_cast<const uint8_t *> (strSpeed.data ()),
                                      strSpeed.size ());
 

@@ -70,11 +70,12 @@ private:
   ndn::Face m_face;
   ndn::Scheduler m_scheduler;
 
-  ns3::Ptr<ns3::UniformRandomVariable> m_rand; // @brief nonce generator
+  ns3::Ptr<ns3::UniformRandomVariable> m_rand;
 
   uint32_t m_seq;
-  uint32_t m_nodeId;
   uint32_t m_frequency; // @brief frequency of beacons (in milliseconds)
+
+  ns3::Time m_lastSpeedChange;
 
   ns3::Ptr<ns3::TraciClient> m_traci; // @brief sumo client - TraCI
 

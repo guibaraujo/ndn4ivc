@@ -42,12 +42,11 @@
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
 #define SUMO_SCENARIO_NAME "multi-lane"
 
-#define SHELLSCRIPT_NUM_VEHICLES                      \
+#define SHELLSCRIPT_NUM_VEHICLES \
   "\
 #/bin/bash \n\
 #echo $1 \n\
-echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/*.rou.xml |grep 'vehicle id'|wc -l` \n\
+echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/*.rou.xml |grep 'vehicle id'|wc -l` \n\
 "
 
 #define SHELLSCRIPT_SUMOMAP_BOUNDARIES                \
@@ -215,7 +214,7 @@ main (int argc, char *argv[])
     if (nodeCounter >= nodePool.GetN ())
       NS_FATAL_ERROR ("Node Pool empty: " << nodeCounter << " nodes created.");
 
-    NS_LOG_INFO ("Node/vehicle " << nodeCounter << " is starting now at "
+    NS_LOG_INFO ("Node/application " << nodeCounter << " will be turned on now at "
                                  << ns3::Simulator::Now ());
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
@@ -228,13 +227,15 @@ main (int argc, char *argv[])
     return includedNode;
   };
 
-  /** Define callback function for node shutdown
+  /** Define the callback function for node shutdown
    * 
    *  ns-3 app must be terminated and ns-3 node (vehicle) will be 
    *  put away ('removed') from the simulation scenario
    */
   std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
     Ptr<BeaconApp> c_app = DynamicCast<BeaconApp> (exNode->GetApplication (0));
+    NS_LOG_INFO ("Node/application " << exNode->GetId() << " will be turned off now at "
+                                 << ns3::Simulator::Now ());
     c_app->StopApplication ();
 
     // put the node in new position, outside the simulation communication range
