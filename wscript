@@ -19,6 +19,7 @@ def build(bld):
         'helper/wifi-setup-helper.cc',
         'model/beacon.cc',
         'model/neighbor-info.cc',
+        'model/tms-consumer.cc',
         'model/localhop-strategy.cc'
     ]
 
@@ -29,6 +30,8 @@ def build(bld):
         'model/beacon-app.h',
         'model/beacon.h',
         'model/neighbor-info.h',
+        'model/tms-consumer-app.h',
+        'model/tms-consumer.h',
         'model/localhop-strategy.h'
     ]
 

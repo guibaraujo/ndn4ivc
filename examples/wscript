@@ -4,3 +4,6 @@ def build(bld):
 
     obj = bld.create_ns3_program('vndn-example-beacon', ['ndn4ivc'])
     obj.source = 'vndn-example-beacon.cc'
+
+    obj = bld.create_ns3_program('vndn-example-tms', ['ndn4ivc'])
+    obj.source = 'vndn-example-tms.cc'

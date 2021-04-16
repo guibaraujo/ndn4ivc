@@ -8,8 +8,8 @@
 // ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
 // https://github.com/guibaraujo/NDN4IVC
 
-#include "ns3/beacon.h"
-#include "ns3/beacon-app.h"
+#include "ns3/tms-consumer.h"
+#include "ns3/tms-consumer-app.h"
 
 #include "ns3/wave-module.h"
 #include "ns3/wifi-module.h"
@@ -36,11 +36,11 @@
 #define END_CODE "\033[0m"
 
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
-//#define SUMO_SCENARIO_NAME "intersection"
+#define SUMO_SCENARIO_NAME "intersection"
 //#define SUMO_SCENARIO_NAME "highway"
 //#define SUMO_SCENARIO_NAME "grid"
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
-#define SUMO_SCENARIO_NAME "multi-lane"
+//#define SUMO_SCENARIO_NAME "multi-lane"
 
 #define SHELLSCRIPT_NUM_VEHICLES \
   "\
@@ -59,8 +59,8 @@ echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("vndn-example-beacon");
-NS_OBJECT_ENSURE_REGISTERED (BeaconApp);
+NS_LOG_COMPONENT_DEFINE ("vndn-example-tms");
+NS_OBJECT_ENSURE_REGISTERED (TmsConsumerApp);
 
 namespace ns3 {
 
@@ -112,7 +112,7 @@ main (int argc, char *argv[])
 
   uint32_t nRSUs = 1;
 
-  uint32_t beaconInterval = 1000;
+  uint32_t interestInterval = 1000;
   uint32_t simTime = 600;
   bool enablePcap = false;
   bool enableLog = true;
@@ -126,7 +126,7 @@ main (int argc, char *argv[])
 
   // command line attibutes
   CommandLine cmd;
-  cmd.AddValue ("i", "Beacon interval (milliseconds)", beaconInterval);
+  cmd.AddValue ("i", "InterestInterval interval (milliseconds)", interestInterval);
   cmd.AddValue ("s", "Simulation time (seconds)", simTime);
   cmd.AddValue ("pcap", "Enable PCAP", enablePcap);
   cmd.AddValue ("log", "Enable Log", enableLog);
@@ -135,8 +135,8 @@ main (int argc, char *argv[])
 
   if (enableLog)
     {
-      LogComponentEnable ("vndn-example-beacon", LOG_LEVEL_INFO);
-      LogComponentEnable ("ndn.Beacon", LOG_LEVEL_INFO);
+      LogComponentEnable ("vndn-example-tms", LOG_LEVEL_INFO);
+      LogComponentEnable ("ndn.TmsConsumer", LOG_LEVEL_INFO);
       LogComponentEnable ("TraciClient", LOG_LEVEL_INFO);
     }
 
@@ -218,11 +218,11 @@ main (int argc, char *argv[])
                                      << ns3::Simulator::Now ());
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
-    Ptr<BeaconApp> beaconApp = CreateObject<BeaconApp> ();
-    beaconApp->SetAttribute ("Frequency", UintegerValue (beaconInterval)); // in milliseconds
-    beaconApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
+    Ptr<TmsConsumerApp> tmsConsumerApp = CreateObject<TmsConsumerApp> ();
+    tmsConsumerApp->SetAttribute ("Frequency", UintegerValue (interestInterval)); // in milliseconds
+    tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
 
-    includedNode->AddApplication (beaconApp);
+    includedNode->AddApplication (tmsConsumerApp);
 
     return includedNode;
   };
@@ -233,7 +233,7 @@ main (int argc, char *argv[])
    *  put away ('removed') from the simulation scenario
    */
   std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
-    Ptr<BeaconApp> c_app = DynamicCast<BeaconApp> (exNode->GetApplication (0));
+    Ptr<TmsConsumerApp> c_app = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
     NS_LOG_INFO ("Node/application " << exNode->GetId () << " will be turned off now at "
                                      << ns3::Simulator::Now ());
     c_app->StopApplication ();
@@ -253,8 +253,6 @@ main (int argc, char *argv[])
   ndnHelper.InstallAll ();
   // forwarding strategy
   ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
-  ndn::StrategyChoiceHelper::Install (nodePool, "/localhop/beacon",
-                                      "/localhost/nfd/strategy/localhop");
 
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",

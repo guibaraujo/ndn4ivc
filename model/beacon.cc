@@ -215,11 +215,11 @@ Beacon::SendBeaconInterest ()
   // name schema Beacon App >> /localhop/beacon/<node-id>/<node-type>/<road-id>/<pos-x>/<pos-y>/<pos-z>/<speed>
   Name name = Name (BEACONPREFIX);
   name.append (std::to_string (thisNode->GetId ())); //<node-id>
-  name.append (m_traci->TraCIAPI::vehicle.getVehicleClass (
-      m_traci->GetVehicleId (ns3::NodeList::GetNode (thisNode->GetId ())))); //<node-type>
-  name.append (m_traci->TraCIAPI::vehicle.getRoadID (
-      m_traci->GetVehicleId (ns3::NodeList::GetNode (thisNode->GetId ())))); //<road-id>
-
+  name.append (
+      m_traci->TraCIAPI::vehicle.getVehicleClass (m_traci->GetVehicleId (thisNode))); //<node-type>
+  name.append (m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode))); //<road-id>
+  //name.append (m_traci->TraCIAPI::vehicle.getRoadID (
+  //    m_traci->GetVehicleId (ns3::NodeList::GetNode (thisNode->GetId ())))); //changed
   name.append (
       std::to_string (thisNode->GetObject<ns3::MobilityModel> ()->GetPosition ().x)); ///<pos-x>
   name.append (
