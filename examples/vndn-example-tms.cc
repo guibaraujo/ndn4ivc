@@ -10,6 +10,8 @@
 
 #include "ns3/tms-consumer.h"
 #include "ns3/tms-consumer-app.h"
+#include "ns3/tms-provider.h"
+#include "ns3/tms-provider-app.h"
 
 #include "ns3/wave-module.h"
 #include "ns3/wifi-module.h"
@@ -27,6 +29,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <exception>
+#include <vector>
 
 #define YELLOW_CODE "\033[33m"
 #define RED_CODE "\033[31m"
@@ -36,9 +39,9 @@
 #define END_CODE "\033[0m"
 
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
-#define SUMO_SCENARIO_NAME "intersection"
+//#define SUMO_SCENARIO_NAME "intersection"
 //#define SUMO_SCENARIO_NAME "highway"
-//#define SUMO_SCENARIO_NAME "grid"
+#define SUMO_SCENARIO_NAME "grid"
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
 //#define SUMO_SCENARIO_NAME "multi-lane"
 
@@ -60,7 +63,9 @@ echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("vndn-example-tms");
+
 NS_OBJECT_ENSURE_REGISTERED (TmsConsumerApp);
+NS_OBJECT_ENSURE_REGISTERED (TmsProviderApp);
 
 namespace ns3 {
 
@@ -133,11 +138,50 @@ main (int argc, char *argv[])
   cmd.AddValue ("sumo-gui", "Enable SUMO with graphical user interface", enableSumoGui);
   cmd.Parse (argc, argv);
 
-  if (enableLog)
+  // alternative for NS_LOG="class|token" ./waf
+  if (enableLog) // see more in https://www.nsnam.org/docs/manual/html/logging.html
     {
-      LogComponentEnable ("vndn-example-tms", LOG_LEVEL_INFO);
-      LogComponentEnable ("ndn.TmsConsumer", LOG_LEVEL_INFO);
-      LogComponentEnable ("TraciClient", LOG_LEVEL_INFO);
+      // The severity class and level options can be given in the NS_LOG environment variable by these tokens:
+      // Class	Level
+      // error	level_error
+      // warn	level_warn
+      // debug	level_debug
+      // info	level_info
+      // function	level_function
+      // logic	level_logic
+      // level_all
+      // all
+      // *
+
+      // The options can be given in the NS_LOG environment variable by these tokens:
+      // Token	Alternate
+      // prefix_func	func
+      // prefix_time	time
+      // prefix_node	node
+      // prefix_level	level
+      // prefix_all
+      // all
+      // *
+
+      std::vector<std::string> componentsLogLevelAll;
+      componentsLogLevelAll.push_back ("vndn-example-tms");
+      componentsLogLevelAll.push_back ("ndn.TmsConsumer");
+      componentsLogLevelAll.push_back ("ndn.TmsProvider");
+
+      std::vector<std::string> componentsLogLevelError;
+      componentsLogLevelError.push_back ("TraciClient");
+
+      for (auto const &c : componentsLogLevelAll)
+        {
+          LogComponentEnable (c.c_str (), LOG_LEVEL_ALL);
+          LogComponentEnable (c.c_str (), LOG_PREFIX_ALL);
+        }
+
+      for (auto const &c : componentsLogLevelError)
+        {
+          LogComponentEnable (c.c_str (), LOG_LEVEL_ERROR);
+          LogComponentEnable (c.c_str (), LOG_PREFIX_ALL);
+        }
     }
 
   /* create node pool and counter; large enough to cover all sumo vehicles */
@@ -158,6 +202,16 @@ main (int argc, char *argv[])
   ndn::WifiSetupHelper wifi;
   NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enablePcap);
 
+  // install Ndn stack
+  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
+  ndn::StackHelper ndnHelper;
+  //ndnHelper.setPolicy("nfd::cs::lru");
+  ndnHelper.setCsSize(1000);
+  ndnHelper.SetDefaultRoutes (true);
+  ndnHelper.InstallAll ();
+  // forwarding strategy
+  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
+
   // install mobility model
   std::cout << "Setting up mobility... " << std::endl;
 
@@ -172,17 +226,7 @@ main (int argc, char *argv[])
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
 
-  /* setup RSU */
-  //ApplicationContainer rsuSpeedControlApps = rsuSpeedControlHelper.Install (nodePool.Get (0));
-  //rsuSpeedControlApps.Start (Seconds (1.0));
-  //rsuSpeedControlApps.Stop (simulationTime);
-
-  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
-  nodeCounter++;
-  //mobilityRsuNode->SetPosition (Vector (70, 70, 3.0)); // set RSU to fixed position
-  mobilityRsuNode->SetPosition (Vector (((sumoMapBoundaries.at (1) + sumoMapBoundaries.at (3)) / 2),
-                                        70, 3.0)); // set RSU to fixed position
-
+  std::cout << "Config SUMO/TraCI..." << std::endl;
   /*** setup Traci and start SUMO ***/
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
   sumoClient->SetAttribute (
@@ -214,8 +258,7 @@ main (int argc, char *argv[])
     if (nodeCounter >= nodePool.GetN ())
       NS_FATAL_ERROR ("Node Pool empty: " << nodeCounter << " nodes created.");
 
-    NS_LOG_INFO ("Node/application " << nodeCounter << " will be turned on now at "
-                                     << ns3::Simulator::Now ());
+    NS_LOG_INFO ("Ns3SumoSetup: node " << nodeCounter << " has initialized and the app installed!");
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
     Ptr<TmsConsumerApp> tmsConsumerApp = CreateObject<TmsConsumerApp> ();
@@ -232,27 +275,37 @@ main (int argc, char *argv[])
    *  ns-3 app must be terminated and ns-3 node (vehicle) will be 
    *  put away ('removed') from the simulation scenario
    */
-  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
+  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [] (Ptr<Node> exNode) {
     Ptr<TmsConsumerApp> c_app = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
-    NS_LOG_INFO ("Node/application " << exNode->GetId () << " will be turned off now at "
-                                     << ns3::Simulator::Now ());
-    c_app->StopApplication ();
+    NS_LOG_INFO ("Ns3SumoSetup: node " << exNode->GetId ()
+                                       << " has finalized and the app removed!");
+    if (c_app)
+      c_app->StopApplication ();
+    c_app->SetStopTime(Seconds(0.1));
+    Ptr<NetDevice> dev = exNode->GetDevice (0);
+
+    //dev->DoDelete();
 
     // put the node in new position, outside the simulation communication range
     Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
-    mob->SetPosition (Vector ((double) exNode->GetId (),
-                              sumoMapBoundaries.at (1) - 5000 - (rand () % 25), -5000.0));
+    mob->SetPosition (Vector ((double) exNode->GetId (), -4800 - (rand () % 25), -4500.0));
 
     // NOTE: further actions could be required for a save shutdown!
   };
 
-  // install Ndn stack
-  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
-  ndn::StackHelper ndnHelper;
-  ndnHelper.SetDefaultRoutes (true);
-  ndnHelper.InstallAll ();
-  // forwarding strategy
-  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
+  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
+  nodeCounter++;
+  //mobilityRsuNode->SetPosition (Vector (70, 70, 3.0)); // set RSU to fixed position
+  //mobilityRsuNode->SetPosition (Vector (((sumoMapBoundaries.at (1) + sumoMapBoundaries.at (3)) / 2),
+  //                                      70, 3.0)); // set RSU to fixed position
+  mobilityRsuNode->SetPosition (Vector (50, 25, 3));
+
+  std::cout << "Installing RSU application... " << std::endl;
+  /* RSU apps */
+  ApplicationContainer tmsProviderContainer;
+  ndn::AppHelper tmsProviderHelper ("TmsProviderApp");
+  tmsProviderHelper.SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
+  tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (0)));
 
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",

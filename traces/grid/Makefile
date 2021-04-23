@@ -12,7 +12,7 @@ EMER_PARAMS=-e $(SIM_TIME) -p 30 --vehicle-class emergency --trip-attributes="co
 all: clean map trips
 
 map: 
-	netgenerate --grid --grid.number=4 --grid.length=100 --default.lanenumber=2 --output-file=map.net.xml
+	netgenerate --grid --flip-y-axis --grid.x-number=4 --grid.y-number=2 --grid.length=100 --default.lanenumber=1 --output-file=map.net.xml
 
 trips:
 	echo "$(date) : Making trips" 

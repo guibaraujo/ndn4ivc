@@ -1,5 +1,5 @@
-#ifndef LOCALHOP_STRATEGY_HPP
-#define LOCALHOP_STRATEGY_HPP
+#ifndef LOCALHOP_STRATEGY_H
+#define LOCALHOP_STRATEGY_H
 
 #include "face/face.hpp"
 #include "fw/strategy.hpp"
@@ -33,4 +33,4 @@ private:
 } // namespace fw
 } // namespace nfd
 
-#endif // LOCALHOP_STRATEGY_HPP
+#endif // LOCALHOP_STRATEGY_H

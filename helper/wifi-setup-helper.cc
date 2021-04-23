@@ -28,10 +28,13 @@ WifiSetupHelper::ConfigureDevices (NodeContainer &nodes, bool enablePcap)
   Setting them to the same value is the easy way to go - or use by default
   I can instead set TxPowerStart to a value lower than 33, but it's necessary set the 
   number of levels for each PHY - 
+
+  NOTE: Set this atributes only for more realistic wave scenarios and per packet transmission power
+  i.e. if a congestion is detected the network can reduce a transmission power (split in levels)
  */
-  wifiPhy.Set ("TxPowerStart", DoubleValue (33));
-  wifiPhy.Set ("TxPowerEnd", DoubleValue (33));
-  wifiPhy.Set ("TxPowerLevels", UintegerValue (8));
+  //wifiPhy.Set ("TxPowerStart", DoubleValue (33));
+  //wifiPhy.Set ("TxPowerEnd", DoubleValue (33));
+  //wifiPhy.Set ("TxPowerLevels", UintegerValue (8));
 
   /*  
   --- Radio Transmit Power ---

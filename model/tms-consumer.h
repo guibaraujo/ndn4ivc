@@ -23,6 +23,8 @@
 #include "ns3/wifi-phy.h"
 #include "ns3/traci-client.h"
 
+#include "../../src/json/single_include/nlohmann/json.hpp"
+
 #include "neighbor-info.h"
 
 #include <memory>
@@ -48,11 +50,17 @@ private:
   void OnData (const ndn::Interest &interest, const ndn::Data &data);
   void OnNack (const ndn::Interest &interest, const ndn::lp::Nack &nack);
   void OnTimedOut (const ndn::Interest &interest);
+  
+  void ProcessInterest (const ndn::Interest &interest);
 
   void SendInterest ();
   void ResendInterest (const ndn::Name name);
 
+  uint64_t ExtractIncomingFace (const ndn::Interest &interest);
+  uint64_t ExtractIncomingFace (const ndn::Data &data);
+
   void ScheduleNextPacket ();
+  void CheckAltRoute (const std::string edge, std::vector<std::string> &alternativeRoute);
 
 private:
   ndn::Face m_face;
@@ -74,4 +82,4 @@ private:
 };
 } // namespace ndn
 
-#endif // BEACON_H
+#endif // TMS_CONSUMER_H

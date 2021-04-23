@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- generated on 2021-04-07 11:32:27.314050 by $Id$
+<!-- generated on 2021-04-22 07:50:49.223704 by $Id$
   options: -n map.net.xml -r emergency_routes.rou.xml -o emergency_trips.xml -e 300 -p 30 <doubleminus>vehicle-class emergency <doubleminus>trip-attributes=color="255,255,255"
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="emergency" vClass="emergency" color="255,255,255"/>
-    <trip id="0" depart="0.00" from="A1A0" to="C2D2" type="emergency"/>
-    <trip id="1" depart="30.00" from="B3C3" to="D1C1" type="emergency"/>
-    <trip id="2" depart="60.00" from="D3D2" to="B0B1" type="emergency"/>
-    <trip id="3" depart="90.00" from="D2C2" to="B0B1" type="emergency"/>
-    <trip id="4" depart="120.00" from="B0A0" to="D2C2" type="emergency"/>
-    <trip id="5" depart="150.00" from="D2D1" to="D1D2" type="emergency"/>
-    <trip id="6" depart="180.00" from="C0B0" to="B1C1" type="emergency"/>
-    <trip id="7" depart="210.00" from="D2D1" to="B1A1" type="emergency"/>
-    <trip id="8" depart="240.00" from="C1C2" to="B1A1" type="emergency"/>
-    <trip id="9" depart="270.00" from="C1C2" to="B1C1" type="emergency"/>
+    <trip id="0" depart="0.00" from="B0A0" to="C0D0" type="emergency"/>
+    <trip id="1" depart="30.00" from="C0C1" to="B1B0" type="emergency"/>
+    <trip id="2" depart="60.00" from="B0B1" to="B1C1" type="emergency"/>
+    <trip id="3" depart="90.00" from="C1C0" to="D1D0" type="emergency"/>
+    <trip id="4" depart="120.00" from="D1C1" to="A1A0" type="emergency"/>
+    <trip id="5" depart="150.00" from="D1C1" to="B1B0" type="emergency"/>
+    <trip id="6" depart="180.00" from="B0C0" to="C1D1" type="emergency"/>
+    <trip id="7" depart="210.00" from="D1C1" to="B1A1" type="emergency"/>
+    <trip id="8" depart="240.00" from="B1C1" to="B0A0" type="emergency"/>
+    <trip id="9" depart="270.00" from="C0D0" to="A0B0" type="emergency"/>
 </routes>

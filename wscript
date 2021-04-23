@@ -20,6 +20,8 @@ def build(bld):
         'model/beacon.cc',
         'model/neighbor-info.cc',
         'model/tms-consumer.cc',
+        'model/tms-provider.cc',
+        'model/multicast-vanet-strategy.cc',
         'model/localhop-strategy.cc'
     ]
 
@@ -32,6 +34,9 @@ def build(bld):
         'model/neighbor-info.h',
         'model/tms-consumer-app.h',
         'model/tms-consumer.h',
+        'model/tms-provider-app.h',
+        'model/tms-provider.h',
+        'model/multicast-vanet-strategy.h',
         'model/localhop-strategy.h'
     ]
 
