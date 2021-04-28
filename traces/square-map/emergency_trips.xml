@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2021-04-26 20:34:13.896041 by $Id$
+  options: -n map.net.xml -r emergency_routes.rou.xml -o emergency_trips.xml -e 300 -p 30 <doubleminus>vehicle-class emergency <doubleminus>trip-attributes=color="255,255,255"
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="emergency" vClass="emergency" color="255,255,255"/>
+    <trip id="0" depart="0.00" from="C1D1" to="D1D0" type="emergency"/>
+    <trip id="1" depart="30.00" from="B0B1" to="A1B1" type="emergency"/>
+    <trip id="2" depart="60.00" from="C0B0" to="B1B0" type="emergency"/>
+    <trip id="3" depart="90.00" from="D0C0" to="D1C1" type="emergency"/>
+    <trip id="4" depart="120.00" from="C1B1" to="D1C1" type="emergency"/>
+    <trip id="5" depart="150.00" from="B0C0" to="C0C1" type="emergency"/>
+    <trip id="6" depart="180.00" from="A0B0" to="B1C1" type="emergency"/>
+    <trip id="7" depart="210.00" from="B0A0" to="B1A1" type="emergency"/>
+    <trip id="8" depart="240.00" from="B1A1" to="A1B1" type="emergency"/>
+    <trip id="9" depart="270.00" from="C0B0" to="C0C1" type="emergency"/>
+</routes>

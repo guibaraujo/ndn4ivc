@@ -29,6 +29,7 @@ def build(bld):
     headers.module = 'ndn4ivc'
     headers.source = [
         'helper/wifi-setup-helper.h',
+        'helper/wifi-adhoc-helper.h',
         'model/beacon-app.h',
         'model/beacon.h',
         'model/neighbor-info.h',

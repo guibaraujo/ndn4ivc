@@ -115,16 +115,18 @@ TmsProvider::OnInterest (const ndn::Interest &interest, uint64_t inFaceId)
     {
       std::string roadId = interest.getName ().at (-2).toUri ();
 
-      double edgeCurrAvgSpeed = m_traci->TraCIAPI::edge.getLastStepMeanSpeed (roadId);
+      double edgeCurrAvgSpeed = m_traci->TraCIAPI::edge.getLastStepMeanSpeed (roadId) /
+                                m_traci->TraCIAPI::lane.getMaxSpeed (roadId + "_0");
       double edgeCurrOccupancy = m_traci->TraCIAPI::edge.getLastStepOccupancy (roadId);
 
-      // preparing data to send
+      // JSON (JavaScript Object Notation) is an open standard (language-independent data)
+      // file format, and a lightweight data-interchange format
       nlohmann::json jDataRes = nlohmann::json{
           {"roadId", roadId},
-          {"avgSpeed", edgeCurrAvgSpeed},
-          {"occupancy", edgeCurrOccupancy},
+          {"speedLevel", edgeCurrAvgSpeed},
+          {"occupancyLevel", edgeCurrOccupancy},
       };
-
+      // preparing data response
       auto data = make_shared<Data> (interest.getName ());
       // Freshness specifies time in seconds (since Timestamp) for which the content is considered valid
       //data->setFreshnessPeriod (ndn::time::milliseconds (100000));
@@ -139,7 +141,7 @@ TmsProvider::OnInterest (const ndn::Interest &interest, uint64_t inFaceId)
       signature.setValue (::ndn::makeNonNegativeIntegerBlock (::ndn::tlv::SignatureValue, 0));
 
       data->setSignature (signature);
-      data->wireEncode();
+      data->wireEncode ();
 
       NS_LOG_INFO ("RSU(" << thisNode->GetId () << ") responding with Data: " << data->getName ());
       m_face.put (*data);

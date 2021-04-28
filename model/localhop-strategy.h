@@ -15,15 +15,13 @@ namespace fw {
 class LocalhopStrategy : public Strategy
 {
 public:
-  explicit
-  LocalhopStrategy(Forwarder& forwarder, const Name& name = getStrategyName());
+  explicit LocalhopStrategy (Forwarder &forwarder, const Name &name = getStrategyName ());
 
-  static const Name&
-  getStrategyName();
+  static const Name &getStrategyName ();
 
-  void
-  afterReceiveInterest(const FaceEndpoint& ingress, const Interest& interest,
-                       const shared_ptr<pit::Entry>& pitEntry) override;
+  void afterReceiveInterest (const FaceEndpoint &ingress, const Interest &interest,
+                             const shared_ptr<pit::Entry> &pitEntry) override;
+
 private:
   RetxSuppressionExponential m_retxSuppression;
   static const time::milliseconds RETX_SUPPRESSION_INITIAL;

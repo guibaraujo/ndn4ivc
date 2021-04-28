@@ -20,7 +20,9 @@
 #include "ns3/network-module.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/internet-module.h"
+
 #include "ns3/wifi-setup-helper.h"
+#include "ns3/wifi-adhoc-helper.h"
 
 #include "ns3/traci-module.h"
 #include "ns3/netanim-module.h"
@@ -30,6 +32,10 @@
 #include <stdio.h>
 #include <exception>
 #include <vector>
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #define YELLOW_CODE "\033[33m"
 #define RED_CODE "\033[31m"
@@ -41,7 +47,7 @@
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
 //#define SUMO_SCENARIO_NAME "intersection"
 //#define SUMO_SCENARIO_NAME "highway"
-#define SUMO_SCENARIO_NAME "grid"
+#define SUMO_SCENARIO_NAME "square-map-test"
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
 //#define SUMO_SCENARIO_NAME "multi-lane"
 
@@ -60,14 +66,12 @@ echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
   "/*.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
 "
 
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("vndn-example-tms");
 
 NS_OBJECT_ENSURE_REGISTERED (TmsConsumerApp);
 NS_OBJECT_ENSURE_REGISTERED (TmsProviderApp);
-
-namespace ns3 {
 
 std::string
 exec (const char *cmd)
@@ -167,6 +171,9 @@ main (int argc, char *argv[])
       componentsLogLevelAll.push_back ("vndn-example-tms");
       componentsLogLevelAll.push_back ("ndn.TmsConsumer");
       componentsLogLevelAll.push_back ("ndn.TmsProvider");
+      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastVanetStrategy");
+      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
+      //componentsLogLevelAll.push_back ("WifiPhy");
 
       std::vector<std::string> componentsLogLevelError;
       componentsLogLevelError.push_back ("TraciClient");
@@ -205,12 +212,14 @@ main (int argc, char *argv[])
   // install Ndn stack
   std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
   ndn::StackHelper ndnHelper;
+  ndnHelper.AddFaceCreateCallback (WifiNetDevice::GetTypeId (), MakeCallback (FixLinkTypeAdhocCb));
   //ndnHelper.setPolicy("nfd::cs::lru");
-  ndnHelper.setCsSize(1000);
+  ndnHelper.setCsSize (1000);
   ndnHelper.SetDefaultRoutes (true);
   ndnHelper.InstallAll ();
   // forwarding strategy
-  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
+  //ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
+  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast-vanet");
 
   // install mobility model
   std::cout << "Setting up mobility... " << std::endl;
@@ -281,7 +290,7 @@ main (int argc, char *argv[])
                                        << " has finalized and the app removed!");
     if (c_app)
       c_app->StopApplication ();
-    c_app->SetStopTime(Seconds(0.1));
+    c_app->SetStopTime (Seconds (0.1));
     Ptr<NetDevice> dev = exNode->GetDevice (0);
 
     //dev->DoDelete();
@@ -310,14 +319,14 @@ main (int argc, char *argv[])
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
                ns3::UintegerValue (SCH3));
+  //Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/TxPowerLevels",
+  //             ns3::UintegerValue (7));
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();
   std::cout << RED_CODE << BOLD_CODE << "Post simulation: " END_CODE << std::endl;
-  Simulator::Destroy ();
-
   return 0;
 };
 } // namespace ns3

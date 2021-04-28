@@ -14,12 +14,12 @@ WifiSetupHelper::~WifiSetupHelper ()
 NetDeviceContainer
 WifiSetupHelper::ConfigureDevices (NodeContainer &nodes, bool enablePcap)
 {
-  // default parameters for propagation delay and propagation loss
   std::string phyMode ("OfdmRate6MbpsBW10MHz");
   YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
   YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
+
   wifiPhy.SetChannel (wifiChannel.Create ());
-  wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11);
 
   /* 
   If you create applications that control TxPower, define the low & high end of TxPower
@@ -103,16 +103,22 @@ WifiSetupHelper::ConfigureDevices (NodeContainer &nodes, bool enablePcap)
   //wifiChannel.AddPropagationLoss ("ns3::RangePropagationLossModel", "MaxRange", DoubleValue (19.0));
 
   /* sett up MAC LAYER (VANET) */
-  NqosWaveMacHelper wifi80211pMac = NqosWaveMacHelper::Default ();
-  Wifi80211pHelper wifi80211p = Wifi80211pHelper::Default ();
+  //In |ns3|, the focus of the wave module is on both the MAC layer and the multi-
+  //channel coordination layer. The key design aspect of 802.11p-compilant MAC layer
+  //is that they allow communications outside the context of a basic service set
+  //(BSS). The literature uses the acronym OCB to denote "outside the context of a
+  //BSS", and the class ns3::OcbWifiMac models this in |ns3|. This MAC does not
+  //require any association between devices (similar to an adhoc WiFi MAC)...
+  //See more in https://github.com/nsnam/ns-3-dev-git/blob/master/src/wave/doc/wave.rst
 
+  NqosWaveMacHelper wifi80211pMac = NqosWaveMacHelper::Default ();
+  wifi80211pMac.SetType ("ns3::OcbWifiMac");
+
+  Wifi80211pHelper wifi80211p = Wifi80211pHelper::Default ();
   wifi80211p.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode",
                                       StringValue (phyMode), "ControlMode", StringValue (phyMode),
                                       "NonUnicastMode", StringValue (phyMode));
 
-  // Set it to adhoc mode if WifiMacHelper
-  // wifi80211pMac.SetType ("ns3::AdhocWifiMac");
-  // install wifi80211p
   NetDeviceContainer wifiNetDevices = wifi80211p.Install (wifiPhy, wifi80211pMac, nodes);
 
   if (enablePcap)

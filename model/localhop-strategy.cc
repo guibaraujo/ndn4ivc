@@ -45,7 +45,7 @@ LocalhopStrategy::afterReceiveInterest (const FaceEndpoint &ingress, const Inter
 {
   const fib::Entry &fibEntry = this->lookupFib (*pitEntry);
   const fib::NextHopList &nexthops = fibEntry.getNextHops ();
-  NFD_LOG_DEBUG ("I: " << interest << " inFaceId=" << ingress.face.getId ());
+  NFD_LOG_DEBUG ("Interest=" << interest << " inFaceId=" << ingress.face.getId ());
 
   int nEligibleNextHops = 0;
 
