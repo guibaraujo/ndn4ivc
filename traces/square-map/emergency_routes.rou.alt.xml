@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Thu Apr 22 07:50:49 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Mon Apr 26 20:34:13 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -31,52 +31,52 @@
     <vType id="emergency" vClass="emergency" color="white"/>
     <vehicle id="0" type="emergency" depart="0.00">
         <routeDistribution last="0">
-            <route cost="28.16" probability="1.00000000" edges="B0A0 A0B0 B0C0 C0D0"/>
+            <route cost="13.85" probability="1.00000000" edges="C1D1 D1D0"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="1" type="emergency" depart="30.00">
         <routeDistribution last="0">
-            <route cost="21.00" probability="1.00000000" edges="C0C1 C1B1 B1B0"/>
+            <route cost="21.57" probability="1.00000000" edges="B0B1 B1A1 A1B1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="2" type="emergency" depart="60.00">
         <routeDistribution last="0">
-            <route cost="13.71" probability="1.00000000" edges="B0B1 B1C1"/>
+            <route cost="21.15" probability="1.00000000" edges="C0B0 B0B1 B1B0"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="3" type="emergency" depart="90.00">
         <routeDistribution last="0">
-            <route cost="28.84" probability="1.00000000" edges="C1C0 C0C1 C1D1 D1D0"/>
+            <route cost="29.28" probability="1.00000000" edges="D0C0 C0D0 D0D1 D1C1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="4" type="emergency" depart="120.00">
         <routeDistribution last="0">
-            <route cost="29.15" probability="1.00000000" edges="D1C1 C1B1 B1A1 A1A0"/>
+            <route cost="27.47" probability="1.00000000" edges="C1B1 B1C1 C1D1 D1C1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="5" type="emergency" depart="150.00">
         <routeDistribution last="0">
-            <route cost="20.55" probability="1.00000000" edges="D1C1 C1B1 B1B0"/>
+            <route cost="13.07" probability="1.00000000" edges="B0C0 C0C1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="6" type="emergency" depart="180.00">
         <routeDistribution last="0">
-            <route cost="20.90" probability="1.00000000" edges="B0C0 C0C1 C1D1"/>
+            <route cost="20.90" probability="1.00000000" edges="A0B0 B0B1 B1C1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="7" type="emergency" depart="210.00">
         <routeDistribution last="0">
-            <route cost="21.14" probability="1.00000000" edges="D1C1 C1B1 B1A1"/>
+            <route cost="28.60" probability="1.00000000" edges="B0A0 A0B0 B0B1 B1A1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="8" type="emergency" depart="240.00">
         <routeDistribution last="0">
-            <route cost="27.71" probability="1.00000000" edges="B1C1 C1B1 B1B0 B0A0"/>
+            <route cost="13.63" probability="1.00000000" edges="B1A1 A1B1"/>
         </routeDistribution>
     </vehicle>
     <vehicle id="9" type="emergency" depart="270.00">
         <routeDistribution last="0">
-            <route cost="35.34" probability="1.00000000" edges="C0D0 D0C0 C0B0 B0A0 A0B0"/>
+            <route cost="19.87" probability="1.00000000" edges="C0B0 B0C0 C0C1"/>
         </routeDistribution>
     </vehicle>
 </routes>

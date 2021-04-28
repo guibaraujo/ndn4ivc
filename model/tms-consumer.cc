@@ -34,53 +34,7 @@ TmsConsumer::TmsConsumer (uint32_t frequency, ns3::Ptr<ns3::TraciClient> &traci)
       m_windowSize (30),
       m_traci (traci)
 {
-
-std::string BEACONPREFIX = "/service/traffic/";
-using namespace ns3;
-  using namespace ns3::ndn;
-
-  NS_LOG_DEBUG ("Registering prefixes...");
-
-  int32_t metric = 0;
-  Ptr<Node> thisNode = NodeList::GetNode (Simulator::GetContext ());
-
-  for (uint32_t deviceId = 0; deviceId < thisNode->GetNDevices (); deviceId++)
-    {
-      Ptr<NetDevice> device = thisNode->GetDevice (deviceId);
-      Ptr<L3Protocol> ndn = thisNode->GetObject<L3Protocol> ();
-      NS_ASSERT_MSG (ndn != nullptr, "Ndn stack should be installed on the node");
-      // getting the node faceids
-      auto face = ndn->getFaceByNetDevice (device);
-      NS_ASSERT_MSG (face != nullptr, "There is no face associated with the net-device");
-
-      NS_LOG_DEBUG ("FibHelper::AddRoute prefix=" << BEACONPREFIX
-                                                  << " via faceId=" << face->getId ());
-      // add Fib entry for BEACONPREFIX with properly faceId
-      FibHelper::AddRoute (thisNode, BEACONPREFIX, face, metric);
-    }
-
-
-
-
-
-
   m_interestList.clear ();
-  m_face.setInterestFilter ("/service/traffic/",
-                            std::bind (&TmsConsumer::ProcessInterest, this, _2), std::bind ([] {}),
-                            std::bind ([] {}));
-}
-
-void
-TmsConsumer::ProcessInterest (const ndn::Interest &interest)
-{
-  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  uint64_t inFaceId = ExtractIncomingFace (interest);
-  NS_LOG_DEBUG ("Receiving a interest from face " << inFaceId << ": " << interest.getName ());
-  if (!inFaceId)
-    {
-      NS_LOG_DEBUG ("Discarding interest from internal face " << inFaceId);
-      return;
-    }
 }
 
 void
@@ -147,49 +101,78 @@ TmsConsumer::OnData (const ndn::Interest &interest, const ndn::Data &data)
 {
   NS_LOG_INFO ("DATA received for: " << data.getName ()
                                      << " from faceId: " << ExtractIncomingFace (data));
-  NS_LOG_INFO ("DATA packet size: " << data.wireEncode ().size () << " octets with payload: "
-                                    << data.getContent ().value_size () << " octets");
+  NS_LOG_INFO ("DATA packet size: " << data.wireEncode ().size () << " octets (payload="
+                                    << data.getContent ().value_size () << ")");
 
-  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  std::vector<std::string> vehAltRoute;
-  CheckAltRoute (data.getName ().at (-2).toUri (), vehAltRoute);
+  std::string strContent;
+  strContent.assign ((char *) data.getContent ().value (), data.getContent ().value_size ());
 
-  if (vehAltRoute.size () > 0 && m_traci->GetVehicleId (thisNode).compare ("passenger5") == 0)
-    { //&& m_traci->GetVehicleId (thisNode).compare ("passenger5") == 0
-      libsumo::TraCIColor vColor;
-      vColor.r = 20; //red
-      vColor.b = 178; //blue
-      vColor.g = 205; //green
-      m_traci->TraCIAPI::vehicle.setColor (m_traci->GetVehicleId (thisNode), vColor);
-
-      std::vector<std::string> vehNewRoute;
-      std::vector<std::string> vehCurrRoute =
-          m_traci->TraCIAPI::vehicle.getRoute (m_traci->GetVehicleId (thisNode));
-
-      for (std::string currRoadId : vehCurrRoute)
-        if (currRoadId.compare (data.getName ().at (-2).toUri ()) == 0)
-          for (std::string altRoadId : vehAltRoute)
-            vehNewRoute.push_back (altRoadId);
-        else
-          vehNewRoute.push_back (currRoadId);
-
-      m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode), vehNewRoute);
-    }
   using nlohmann::json;
-  //std::string strContent;
-  //strContent.assign ((char *) data.getContent ().value (), data.getContent ().value_size ());
-  //auto jContent = json::parse (strContent);
-  // std::cout << "\tOI:" << jContent.at ("avgSpeed") << "\n";
+  auto jContent = json::parse (strContent);
+  //std::cout << "\t:" << jContent.at ("roadId") << std::endl;
+  //std::cout << "\t:" << jContent.at ("speedLevel") << std::endl;
+  //std::cout << "\t:" << jContent.at ("occupancyLevel") << std::endl;
+
+  // simple congestion level estimation/verification
+  if (jContent.at ("speedLevel").get<double> () <= 1 ||
+      jContent.at ("occupancyLevel").get<double> () >= 0)
+    {
+      ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
+      std::vector<std::string> vNewRoute;
+
+      CheckAlternativeRoute (data.getName ().at (-2).toUri (), vNewRoute);
+
+      if (vNewRoute.size ())
+        { //&& m_traci->GetVehicleId (thisNode).compare ("passenger5") == 0
+          libsumo::TraCIColor vColorStruct;
+          vColorStruct.r = 0;
+          vColorStruct.g = 128;
+          vColorStruct.b = 255;
+          vColorStruct.a = 205;
+
+          m_traci->TraCIAPI::vehicle.setColor (m_traci->GetVehicleId (thisNode), vColorStruct);
+          m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode), vNewRoute);
+        }
+    }
 }
 
 void
-TmsConsumer::CheckAltRoute (const std::string edge, std::vector<std::string> &alternativeRoute)
+TmsConsumer::CheckAlternativeRoute (const std::string edge,
+                                    std::vector<std::string> &alternativeRoute)
 {
+  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
+  std::vector<std::string> vehCurrRoute =
+      m_traci->TraCIAPI::vehicle.getRoute (m_traci->GetVehicleId (thisNode));
+  std::string vehicleRoad = m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode));
+
+  // a simple structure for illustrating how to change vehicle route ...
+  // NOTE: further actions cloud consider changing the map structure to a graph
   if (edge.compare ("B0C0") == 0)
     {
-      alternativeRoute.push_back ("B0B1");
-      alternativeRoute.push_back ("B1C1");
-      alternativeRoute.push_back ("C1C0");
+      bool flag = false;
+      for (auto e : vehCurrRoute)
+        if (e.compare (vehicleRoad) == 0)
+          {
+            flag = true;
+            alternativeRoute.push_back (vehicleRoad);
+          }
+        else if (flag)
+          {
+            if (e.compare ("B0C0") == 0)
+              {
+                alternativeRoute.push_back ("B0B1");
+                alternativeRoute.push_back ("B1C1");
+                alternativeRoute.push_back ("C1C0");
+              }
+            else
+              {
+                // simple road loop detector
+                if (e.compare ("C0C1") == 0 && alternativeRoute.back ().compare ("C1C0") == 0)
+                  alternativeRoute.pop_back ();
+                else
+                  alternativeRoute.push_back (e);
+              }
+          }
     }
 }
 
@@ -205,9 +188,15 @@ void
 TmsConsumer::OnTimedOut (const ndn::Interest &interest)
 {
   NS_LOG_INFO ("Interest TIME OUT for Name: " << interest.getName ());
+
   // Is it in the same time window?
-  if (stoi (interest.getName ().at (-1).toUri ()) == m_timeWindow)
-    ResendInterest (interest.getName ()); // retransmitir
+  CheckNewTimeWindow ();
+  ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
+  std::string vehicleRoad = m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode));
+
+  if (vehicleRoad.compare (interest.getName ().at (-2).toUri ()) != 0)
+    if (stoi (interest.getName ().at (-1).toUri ()) == m_timeWindow)
+      ResendInterest (interest.getName ());
 }
 
 uint64_t
@@ -249,10 +238,10 @@ TmsConsumer::CheckNewTimeWindow ()
       m_interestList.clear ();
 
       ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-      std::vector<std::string> vehicleRoute =
-          m_traci->TraCIAPI::vehicle.getRoute (m_traci->GetVehicleId (thisNode));
       std::string vehicleRoad =
           m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode));
+      std::vector<std::string> vehicleRoute =
+          m_traci->TraCIAPI::vehicle.getRoute (m_traci->GetVehicleId (thisNode));
 
       bool ctrlCurrentRoute = false;
       for (std::string roadId : vehicleRoute)

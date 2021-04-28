@@ -50,8 +50,6 @@ private:
   void OnData (const ndn::Interest &interest, const ndn::Data &data);
   void OnNack (const ndn::Interest &interest, const ndn::lp::Nack &nack);
   void OnTimedOut (const ndn::Interest &interest);
-  
-  void ProcessInterest (const ndn::Interest &interest);
 
   void SendInterest ();
   void ResendInterest (const ndn::Name name);
@@ -60,7 +58,7 @@ private:
   uint64_t ExtractIncomingFace (const ndn::Data &data);
 
   void ScheduleNextPacket ();
-  void CheckAltRoute (const std::string edge, std::vector<std::string> &alternativeRoute);
+  void CheckAlternativeRoute (const std::string edge, std::vector<std::string> &newRoute);
 
 private:
   ndn::Face m_face;

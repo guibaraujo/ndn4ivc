@@ -33,6 +33,7 @@ MulticastVanetStrategy::afterReceiveInterest (const FaceEndpoint &ingress, const
 {
   const fib::Entry &fibEntry = this->lookupFib (*pitEntry);
   const fib::NextHopList &nexthops = fibEntry.getNextHops ();
+  NFD_LOG_DEBUG ("Interest=" << interest << " inFaceId=" << ingress.face.getId ());
 
   int nEligibleNextHops = 0;
 

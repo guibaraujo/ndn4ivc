@@ -39,6 +39,7 @@ After installing ns-3 and SUMO, inside `ndnSIM/ns-3/src` folder directory, run:
 ```sh
 git clone https://github.com/vodafone-chair/ns3-sumo-coupling.git src/ns3-sumo-coupling
 mv src/ns3-sumo-coupling/traci* src/; rm -fr src/ns3-sumo-coupling/
+git clone https://github.com/nlohmann/json.git src/json
 git clone https://github.com/guibaraujo/NDN4IVC.git contrib/ndn4ivc
 ```
 
