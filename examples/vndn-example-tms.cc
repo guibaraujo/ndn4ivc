@@ -47,7 +47,7 @@
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
 //#define SUMO_SCENARIO_NAME "intersection"
 //#define SUMO_SCENARIO_NAME "highway"
-#define SUMO_SCENARIO_NAME "square-map-test"
+#define SUMO_SCENARIO_NAME "square-map"
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
 //#define SUMO_SCENARIO_NAME "multi-lane"
 
@@ -58,20 +58,35 @@
 echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/*.rou.xml |grep 'vehicle id'|wc -l` \n\
 "
 
-#define SHELLSCRIPT_SUMOMAP_BOUNDARIES                \
-  "\
-#/bin/bash \n\
-#echo $1 \n\
-echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/*.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
-"
-
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("vndn-example-tms");
 
 NS_OBJECT_ENSURE_REGISTERED (TmsConsumerApp);
 NS_OBJECT_ENSURE_REGISTERED (TmsProviderApp);
+
+std::map<uint32_t, ns3::Time> nodesDisable2Move;
+
+void
+checkDisableNodes ()
+{
+  for (auto it = nodesDisable2Move.begin (), it_next = it; it != nodesDisable2Move.end ();
+       it = it_next)
+    {
+      ++it_next;
+      Ptr<Node> exNode = ns3::NodeList::GetNode (it->first);
+      // NOTE:we'll put the node in a new position, outside the simulation
+      // communication range, but this is just for better visualization mode
+      if ((ns3::Time) ns3::Simulator::Now ().GetSeconds () - it->second > 1)
+        {
+          Ptr<ConstantPositionMobilityModel> mob =
+              exNode->GetObject<ConstantPositionMobilityModel> ();
+          mob->SetPosition (Vector ((double) exNode->GetId (), -4000 - (rand () % 25), -5000.0));
+          nodesDisable2Move.erase (it);
+        }
+    }
+  Simulator::Schedule (Seconds (1), &checkDisableNodes);
+}
 
 std::string
 exec (const char *cmd)
@@ -110,14 +125,8 @@ main (int argc, char *argv[])
   std::cout << CYAN_CODE << BOLD_CODE << "Starting simulation... " END_CODE << std::endl;
 
   uint32_t nVehicles = std::stoi (exec (SHELLSCRIPT_NUM_VEHICLES));
-  // Getting the network boundary for 2D SUMO map >> coordinate C1(x1,y1) and coordinate C2(x2,y2)
-  vector<double> sumoMapBoundaries =
-      splitSumoMapBoundaries (exec (SHELLSCRIPT_SUMOMAP_BOUNDARIES), ",");
 
   std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
-  std::cout << "SUMO map boundaries: C1(" << sumoMapBoundaries.at (0) << ","
-            << sumoMapBoundaries.at (1) << ") C2(" << sumoMapBoundaries.at (2) << ","
-            << sumoMapBoundaries.at (3) << ")" << std::endl;
 
   uint32_t nRSUs = 1;
 
@@ -127,10 +136,10 @@ main (int argc, char *argv[])
   bool enableLog = true;
   bool enableSumoGui = false;
 
-  std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
-  std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
+  std::cout << "# nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
+  std::cout << "# Road Side Units (RSUs): " << nRSUs << std::endl;
 
-  if (!nVehicles || sumoMapBoundaries.size () < 4)
+  if (!nVehicles)
     throw std::runtime_error ("SUMO failed!");
 
   // command line attibutes
@@ -210,7 +219,7 @@ main (int argc, char *argv[])
   NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enablePcap);
 
   // install Ndn stack
-  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
+  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes ... " << std::endl;
   ndn::StackHelper ndnHelper;
   ndnHelper.AddFaceCreateCallback (WifiNetDevice::GetTypeId (), MakeCallback (FixLinkTypeAdhocCb));
   //ndnHelper.setPolicy("nfd::cs::lru");
@@ -221,21 +230,17 @@ main (int argc, char *argv[])
   //ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
   ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast-vanet");
 
-  // install mobility model
-  std::cout << "Setting up mobility... " << std::endl;
-
-  /*** setup mobility and position to node pool ***/
+  // install mobility & config SUMO
+  std::cout << "Config SUMO/TraCI..." << std::endl;
   MobilityHelper mobility;
   Ptr<UniformDiscPositionAllocator> positionAlloc = CreateObject<UniformDiscPositionAllocator> ();
   positionAlloc->SetX (0);
-  positionAlloc->SetY (sumoMapBoundaries.at (1) - 5000);
+  positionAlloc->SetY (-5000 - (rand () % 25));
   positionAlloc->SetZ (-5000.0);
-  positionAlloc->SetRho (20.0);
+  positionAlloc->SetRho (25.0);
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
-
-  std::cout << "Config SUMO/TraCI..." << std::endl;
   /*** setup Traci and start SUMO ***/
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
   sumoClient->SetAttribute (
@@ -284,32 +289,34 @@ main (int argc, char *argv[])
    *  ns-3 app must be terminated and ns-3 node (vehicle) will be 
    *  put away ('removed') from the simulation scenario
    */
-  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [] (Ptr<Node> exNode) {
+  std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
     Ptr<TmsConsumerApp> c_app = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
-    NS_LOG_INFO ("Ns3SumoSetup: node " << exNode->GetId ()
-                                       << " has finalized and the app removed!");
+
     if (c_app)
-      c_app->StopApplication ();
-    c_app->SetStopTime (Seconds (0.1));
-    Ptr<NetDevice> dev = exNode->GetDevice (0);
+      {
+        c_app->StopApplication ();
+        c_app->SetStopTime (NanoSeconds (1));
+      }
 
-    //dev->DoDelete();
+    for (uint32_t i = 0; i < exNode->GetNDevices (); ++i)
+      if (exNode->GetDevice (i)->GetObject<WifiNetDevice> ()) // it is a WifiNetDevice
+        exNode->GetDevice (i)->GetObject<WifiNetDevice> ()->GetPhy ()->SetOffMode ();
+    //GetPhy ()->SetSleepMode ();
 
-    // put the node in new position, outside the simulation communication range
-    Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
-    mob->SetPosition (Vector ((double) exNode->GetId (), -4800 - (rand () % 25), -4500.0));
+    // avoid animation error (link drag) in PyViz
+    nodesDisable2Move.emplace (exNode->GetId (), (ns3::Time) ns3::Simulator::Now ().GetSeconds ());
+    NS_LOG_INFO ("Ns3SumoSetup: node " << exNode->GetId ()
+                                       << " has been disconnected and the app removed!");
 
-    // NOTE: further actions could be required for a save shutdown!
+    //the SUMO node has been finished and the ns3 node has also fully 'deactivated' accordingly
+    //further actions could be required for a save shutdown!
   };
 
-  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
-  nodeCounter++;
-  //mobilityRsuNode->SetPosition (Vector (70, 70, 3.0)); // set RSU to fixed position
-  //mobilityRsuNode->SetPosition (Vector (((sumoMapBoundaries.at (1) + sumoMapBoundaries.at (3)) / 2),
-  //                                      70, 3.0)); // set RSU to fixed position
-  mobilityRsuNode->SetPosition (Vector (50, 25, 3));
-
   std::cout << "Installing RSU application... " << std::endl;
+  /* RSU mobility - fixed position*/
+  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
+  mobilityRsuNode->SetPosition (Vector (50, 25, 3));
+  nodeCounter++;
   /* RSU apps */
   ApplicationContainer tmsProviderContainer;
   ndn::AppHelper tmsProviderHelper ("TmsProviderApp");
@@ -319,8 +326,10 @@ main (int argc, char *argv[])
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
                ns3::UintegerValue (SCH3));
-  //Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/TxPowerLevels",
-  //             ns3::UintegerValue (7));
+  // Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/TxPowerLevels",
+  //              ns3::UintegerValue (8));
+
+  Simulator::Schedule (Seconds (1), &checkDisableNodes);
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
