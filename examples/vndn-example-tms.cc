@@ -177,11 +177,11 @@ main (int argc, char *argv[])
       // *
 
       std::vector<std::string> componentsLogLevelAll;
-      componentsLogLevelAll.push_back ("vndn-example-tms");
-      componentsLogLevelAll.push_back ("ndn.TmsConsumer");
-      componentsLogLevelAll.push_back ("ndn.TmsProvider");
+      //componentsLogLevelAll.push_back ("vndn-example-tms");
+      //componentsLogLevelAll.push_back ("ndn.TmsConsumer");
+      //componentsLogLevelAll.push_back ("ndn.TmsProvider");
       //componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastVanetStrategy");
-      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
+      componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
       //componentsLogLevelAll.push_back ("WifiPhy");
 
       std::vector<std::string> componentsLogLevelError;
@@ -272,7 +272,8 @@ main (int argc, char *argv[])
     if (nodeCounter >= nodePool.GetN ())
       NS_FATAL_ERROR ("Node Pool empty: " << nodeCounter << " nodes created.");
 
-    NS_LOG_INFO ("Ns3SumoSetup: node " << nodeCounter << " has initialized and the app installed!");
+    NS_LOG_INFO ("Ns3SumoSetup: node [" << nodeCounter
+                                        << "] has initialized and the app installed!");
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
     Ptr<TmsConsumerApp> tmsConsumerApp = CreateObject<TmsConsumerApp> ();
@@ -290,12 +291,23 @@ main (int argc, char *argv[])
    *  put away ('removed') from the simulation scenario
    */
   std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
-    Ptr<TmsConsumerApp> c_app = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
+    NS_LOG_INFO ("Ns3SumoSetup: node [" << exNode->GetId ()
+                                        << "] will be finished and disconnected!");
 
-    if (c_app)
+    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
+                 << exNode->GetId () << "VehicleId:" << sumoClient->GetVehicleId (exNode));
+
+    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
+                 << exNode->GetId () << "Type:"
+                 << sumoClient->vehicle.getVehicleClass (sumoClient->GetVehicleId (exNode)));
+
+    Ptr<TmsConsumerApp> tmsConsumerApp = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
+
+    // App will be removed
+    if (tmsConsumerApp)
       {
-        c_app->StopApplication ();
-        c_app->SetStopTime (NanoSeconds (1));
+        tmsConsumerApp->StopApplication ();
+        //tmsConsumerApp->SetStopTime (NanoSeconds (1));
       }
 
     for (uint32_t i = 0; i < exNode->GetNDevices (); ++i)
@@ -305,8 +317,6 @@ main (int argc, char *argv[])
 
     // avoid animation error (link drag) in PyViz
     nodesDisable2Move.emplace (exNode->GetId (), (ns3::Time) ns3::Simulator::Now ().GetSeconds ());
-    NS_LOG_INFO ("Ns3SumoSetup: node " << exNode->GetId ()
-                                       << " has been disconnected and the app removed!");
 
     //the SUMO node has been finished and the ns3 node has also fully 'deactivated' accordingly
     //further actions could be required for a save shutdown!
@@ -326,8 +336,6 @@ main (int argc, char *argv[])
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
                ns3::UintegerValue (SCH3));
-  // Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/TxPowerLevels",
-  //              ns3::UintegerValue (8));
 
   Simulator::Schedule (Seconds (1), &checkDisableNodes);
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated on 2021-05-01 15:28:41.240863 by $Id$
+  options: -n map.net.xml -r passenger_routes.rou.xml -o passenger_trips.xml -e 10 -p 1 <doubleminus>vehicle-class passenger
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="passenger" vClass="passenger"/>
+    <trip id="0" depart="0.00" from="C1C0" to="B1A1" type="passenger"/>
+    <trip id="1" depart="1.00" from="B0A0" to="B0C0" type="passenger"/>
+    <trip id="2" depart="2.00" from="C1C0" to="C0B0" type="passenger"/>
+    <trip id="3" depart="3.00" from="B1A1" to="A2A1" type="passenger"/>
+    <trip id="4" depart="4.00" from="A1A2" to="B2C2" type="passenger"/>
+    <trip id="5" depart="5.00" from="A1A2" to="B1B0" type="passenger"/>
+    <trip id="6" depart="6.00" from="B0A0" to="B2A2" type="passenger"/>
+    <trip id="7" depart="7.00" from="A0A1" to="B1B2" type="passenger"/>
+    <trip id="8" depart="8.00" from="A1A0" to="A2B2" type="passenger"/>
+    <trip id="9" depart="9.00" from="B2B1" to="A1A0" type="passenger"/>
+</routes>

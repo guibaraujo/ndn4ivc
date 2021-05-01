@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Sat May  1 15:28:41 2021 by Eclipse SUMO duarouter Version 1.1.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="map.net.xml"/>
+        <route-files value="passenger_trips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="passenger_routes.rou.xml"/>
+        <alternatives-output value="passenger_routes.rou.alt.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="10.0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <ignore-errors value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="passenger" vClass="passenger"/>
+    <vehicle id="passenger0" type="passenger" depart="0.00">
+        <route edges="C1C0 C0C1 C1B1 B1A1"/>
+    </vehicle>
+    <vehicle id="passenger1" type="passenger" depart="1.00">
+        <route edges="B0A0 A0B0 B0C0"/>
+    </vehicle>
+    <vehicle id="passenger2" type="passenger" depart="2.00">
+        <route edges="C1C0 C0B0"/>
+    </vehicle>
+    <vehicle id="passenger3" type="passenger" depart="3.00">
+        <route edges="B1A1 A1A2 A2A1"/>
+    </vehicle>
+    <vehicle id="passenger4" type="passenger" depart="4.00">
+        <route edges="A1A2 A2B2 B2C2"/>
+    </vehicle>
+    <vehicle id="passenger5" type="passenger" depart="5.00">
+        <route edges="A1A2 A2A1 A1B1 B1B0"/>
+    </vehicle>
+    <vehicle id="passenger6" type="passenger" depart="6.00">
+        <route edges="B0A0 A0B0 B0B1 B1B2 B2A2"/>
+    </vehicle>
+    <vehicle id="passenger7" type="passenger" depart="7.00">
+        <route edges="A0A1 A1B1 B1B2"/>
+    </vehicle>
+    <vehicle id="passenger8" type="passenger" depart="8.00">
+        <route edges="A1A0 A0A1 A1A2 A2B2"/>
+    </vehicle>
+    <vehicle id="passenger9" type="passenger" depart="9.00">
+        <route edges="B2B1 B1A1 A1A0"/>
+    </vehicle>
+</routes>

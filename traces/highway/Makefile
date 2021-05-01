@@ -1,24 +1,33 @@
-
-BOLD_BLACK='\033[1;30m'       # Black
+START_COLOR='\033[1;32m'
 END_COLOR='\033[0m'
 
-all: trips trace
+SEED_TIME=10
 
-trace:
-	echo "$(date) : Creating SUMO trace" 
-	sumo -c sim.sumocfg --fcd-output sumoTrace.xml
-	echo "Make NS2 $(date)"
-	python $(SUMO_HOME)/tools/traceExporter.py --fcd-input sumoTrace.xml --ns2mobility-output ns2mobility.tcl
+# Generate a passenger car every x second
+PASS_PARAMS=-e $(SEED_TIME) -p 1 --vehicle-class passenger
+# Emergency vehicle
+EMER_PARAMS=-e $(SEED_TIME) -p 10 --vehicle-class emergency --trip-attributes="color=\"255,255,255\""
+
+all: clean map trips
+
+map: 
+#	netgenerate --grid --grid.number=3 --grid.length=200 --default.lanenumber=2 --output-file=map.net.xml
 
 trips:
-	echo "$(date) : Making trips" 
-        # Exclude ][ -> 2 vehicles
-	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r routes.rou.xml  -o trips.xml -b 1 -e 4 -p 0.5
+	/usr/bin/clear
+	@echo "${START_COLOR}Making SUMO trips ${END_COLOR}"
+	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r passenger_routes.rou.xml  -o passenger_trips.xml $(PASS_PARAMS)
+	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r emergency_routes.rou.xml  -o emergency_trips.xml $(EMER_PARAMS)
+
+	@echo "${START_COLOR}Creating unique IDs in the route files ${END_COLOR}"
+	sed -i "s/vehicle id=\"/vehicle id=\"passenger/g" passenger_routes.rou.xml
+	sed -i "s/vehicle id=\"/vehicle id=\"emergency/g" emergency_routes.rou.xml
+
+	@echo "${START_COLOR}Done! ${END_COLOR}"
 
 sim:
 	sumo-gui -c sim.sumocfg
 
 clean:
-	rm -f sumoTrace.xml ns2mobility.tcl
-	rm -f routes.rou.xml routes.rou.alt.xml trips.xml
+	rm -f *.rou.*xml *.alt.*xml SumoError.log
 

@@ -43,6 +43,11 @@ git clone https://github.com/nlohmann/json.git src/json
 git clone https://github.com/guibaraujo/NDN4IVC.git contrib/ndn4ivc
 ```
 
+## **Patching**
+```sh
+// visualizer: fix error to show ndn faces
+sed -i 's/getForwarder().getFaceTable()/getFaceTable()/g' ns-3/src/visualizer/visualizer/plugins/ndnsim_fib.py
+```
 
 ## **Running**
 

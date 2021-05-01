@@ -1,5 +1,5 @@
 ### Description
-This ns3 module implements an simple intelligent transportation system.
+This ns3 module implements an framework for intelligent transportation system in named data networking (NDN).
 
 ### System specification
 This module was tested on the following system:
