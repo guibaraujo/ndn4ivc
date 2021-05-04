@@ -114,8 +114,8 @@ TmsConsumer::OnData (const ndn::Interest &interest, const ndn::Data &data)
   //std::cout << "\t:" << jContent.at ("occupancyLevel") << std::endl;
 
   // simple congestion level estimation/verification
-  if (jContent.at ("speedLevel").get<double> () <= 0.5 ||
-      jContent.at ("occupancyLevel").get<double> () >= 0.5)
+  if (jContent.at ("speedLevel").get<double> () <= 0.5 &&
+      jContent.at ("occupancyLevel").get<double> () >= 0.2)
     {
       ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
       std::vector<std::string> vNewRoute;

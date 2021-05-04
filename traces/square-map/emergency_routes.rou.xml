@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon Apr 26 20:34:13 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Mon May  3 15:51:10 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -14,7 +14,7 @@
     </output>
 
     <time>
-        <begin value="0"/>
+        <begin value="0.0"/>
         <end value="300.0"/>
     </time>
 
@@ -30,33 +30,33 @@
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="emergency" vClass="emergency" color="white"/>
     <vehicle id="emergency0" type="emergency" depart="0.00">
-        <route edges="C1D1 D1D0"/>
+        <route edges="D1D0 D0C0 C0B0 B0B1 B1B0"/>
     </vehicle>
     <vehicle id="emergency1" type="emergency" depart="30.00">
-        <route edges="B0B1 B1A1 A1B1"/>
+        <route edges="B1A1 A1B1 B1C1 C1D1 D1D0 D0D1"/>
     </vehicle>
     <vehicle id="emergency2" type="emergency" depart="60.00">
-        <route edges="C0B0 B0B1 B1B0"/>
+        <route edges="D1C1 C1D1 D1D0"/>
     </vehicle>
     <vehicle id="emergency3" type="emergency" depart="90.00">
-        <route edges="D0C0 C0D0 D0D1 D1C1"/>
+        <route edges="B1A1 A1B1 B1C1"/>
     </vehicle>
     <vehicle id="emergency4" type="emergency" depart="120.00">
-        <route edges="C1B1 B1C1 C1D1 D1C1"/>
+        <route edges="C1D1 D1D0 D0D1"/>
     </vehicle>
     <vehicle id="emergency5" type="emergency" depart="150.00">
-        <route edges="B0C0 C0C1"/>
+        <route edges="B1C1 C1D1 D1D0 D0D1"/>
     </vehicle>
     <vehicle id="emergency6" type="emergency" depart="180.00">
-        <route edges="A0B0 B0B1 B1C1"/>
+        <route edges="D0D1 D1C1 C1D1"/>
     </vehicle>
     <vehicle id="emergency7" type="emergency" depart="210.00">
-        <route edges="B0A0 A0B0 B0B1 B1A1"/>
+        <route edges="B0A0 A0B0 B0C0 C0B0"/>
     </vehicle>
     <vehicle id="emergency8" type="emergency" depart="240.00">
-        <route edges="B1A1 A1B1"/>
+        <route edges="D1C1 C1D1 D1D0 D0C0"/>
     </vehicle>
     <vehicle id="emergency9" type="emergency" depart="270.00">
-        <route edges="C0B0 B0C0 C0C1"/>
+        <route edges="D0D1 D1C1 C1D1"/>
     </vehicle>
 </routes>

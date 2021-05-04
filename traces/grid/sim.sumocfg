@@ -7,7 +7,7 @@
     <output>
         <tripinfo-output value="sumo-output.tripinfo.xml"/>
          <emission-output value="sumo-output.emission.xml"/>
-         <fcd-output value="sumo-output.fcd.xml"/>
+         <!-- <fcd-output value="sumo-output.fcd.xml"/> -->
     </output>
 
     <time>

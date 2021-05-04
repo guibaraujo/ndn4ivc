@@ -35,12 +35,8 @@
 #define CYAN_CODE "\033[36m"
 #define END_CODE "\033[0m"
 
-// specify the SUMO scenario put in 'ndn4ivc/traces' directory
-//#define SUMO_SCENARIO_NAME "intersection"
-//#define SUMO_SCENARIO_NAME "highway"
-//#define SUMO_SCENARIO_NAME "grid"
-//#define SUMO_SCENARIO_NAME "osm-openstreetmap"
-#define SUMO_SCENARIO_NAME "multi-lane"
+// SUMO scenario in the directory 'ndn4ivc/traces' 
+#define SUMO_SCENARIO_NAME "intersection"
 
 #define SHELLSCRIPT_NUM_VEHICLES \
   "\

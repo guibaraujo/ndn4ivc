@@ -101,7 +101,7 @@ Beacon::PrintFib ()
 void
 Beacon::PrintNeighbors ()
 {
-  NS_LOG_DEBUG ("# known neighbors: " << m_neighbors.size ());
+  NS_LOG_DEBUG ("Number (#) of known neighbors: " << m_neighbors.size ());
   for (auto it = m_neighbors.begin (); it != m_neighbors.end (); ++it)
     {
       NS_LOG_DEBUG ("Neighbor=" << it->second.GetId () << ", type=" << it->second.GetType ()
@@ -164,10 +164,12 @@ Beacon::OnBeaconInterest (const ndn::Interest &interest, uint64_t inFaceId)
           int numLanes = m_traci->TraCIAPI::edge.getLaneNumber (myRoad);
           if (numLanes > 1)
             {
-              m_traci->TraCIAPI::vehicle.changeLane (m_traci->GetVehicleId (thisNode),
-                                                     m_rand->GetInteger (0, numLanes - 1),
-                                                     m_frequency / 100);
-              m_traci->TraCIAPI::vehicle.setSpeed (m_traci->GetVehicleId (thisNode), 1);
+              int laneIndex = 0;
+              int durationInSeconds = 5;
+              m_traci->TraCIAPI::vehicle.changeLane (m_traci->GetVehicleId (thisNode), laneIndex,
+                                                     durationInSeconds);
+
+
 
               m_lastSpeedChange = (ns3::Time) ns3::Simulator::Now ().GetMilliSeconds ();
             }

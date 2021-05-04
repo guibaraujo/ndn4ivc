@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Sat May  1 15:28:41 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Sun May  2 13:14:04 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -14,8 +14,8 @@
     </output>
 
     <time>
-        <begin value="0"/>
-        <end value="10.0"/>
+        <begin value="0.0"/>
+        <end value="100.0"/>
     </time>
 
     <report>
@@ -30,33 +30,378 @@
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="passenger" vClass="passenger"/>
     <vehicle id="passenger0" type="passenger" depart="0.00">
-        <route edges="C1C0 C0C1 C1B1 B1A1"/>
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger1" type="passenger" depart="1.00">
-        <route edges="B0A0 A0B0 B0C0"/>
+    <vehicle id="passenger1" type="passenger" depart="0.80">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger2" type="passenger" depart="2.00">
-        <route edges="C1C0 C0B0"/>
+    <vehicle id="passenger2" type="passenger" depart="1.60">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger3" type="passenger" depart="3.00">
-        <route edges="B1A1 A1A2 A2A1"/>
+    <vehicle id="passenger3" type="passenger" depart="2.40">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger4" type="passenger" depart="4.00">
-        <route edges="A1A2 A2B2 B2C2"/>
+    <vehicle id="passenger4" type="passenger" depart="3.20">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger5" type="passenger" depart="5.00">
-        <route edges="A1A2 A2A1 A1B1 B1B0"/>
+    <vehicle id="passenger5" type="passenger" depart="4.00">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger6" type="passenger" depart="6.00">
-        <route edges="B0A0 A0B0 B0B1 B1B2 B2A2"/>
+    <vehicle id="passenger6" type="passenger" depart="4.80">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger7" type="passenger" depart="7.00">
-        <route edges="A0A1 A1B1 B1B2"/>
+    <vehicle id="passenger7" type="passenger" depart="5.60">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger8" type="passenger" depart="8.00">
-        <route edges="A1A0 A0A1 A1A2 A2B2"/>
+    <vehicle id="passenger8" type="passenger" depart="6.40">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
-    <vehicle id="passenger9" type="passenger" depart="9.00">
-        <route edges="B2B1 B1A1 A1A0"/>
+    <vehicle id="passenger9" type="passenger" depart="7.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger10" type="passenger" depart="8.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger11" type="passenger" depart="8.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger12" type="passenger" depart="9.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger13" type="passenger" depart="10.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger14" type="passenger" depart="11.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger15" type="passenger" depart="12.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger16" type="passenger" depart="12.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger17" type="passenger" depart="13.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger18" type="passenger" depart="14.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger19" type="passenger" depart="15.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger20" type="passenger" depart="16.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger21" type="passenger" depart="16.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger22" type="passenger" depart="17.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger23" type="passenger" depart="18.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger24" type="passenger" depart="19.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger25" type="passenger" depart="20.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger26" type="passenger" depart="20.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger27" type="passenger" depart="21.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger28" type="passenger" depart="22.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger29" type="passenger" depart="23.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger30" type="passenger" depart="24.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger31" type="passenger" depart="24.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger32" type="passenger" depart="25.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger33" type="passenger" depart="26.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger34" type="passenger" depart="27.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger35" type="passenger" depart="28.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger36" type="passenger" depart="28.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger37" type="passenger" depart="29.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger38" type="passenger" depart="30.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger39" type="passenger" depart="31.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger40" type="passenger" depart="32.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger41" type="passenger" depart="32.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger42" type="passenger" depart="33.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger43" type="passenger" depart="34.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger44" type="passenger" depart="35.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger45" type="passenger" depart="36.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger46" type="passenger" depart="36.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger47" type="passenger" depart="37.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger48" type="passenger" depart="38.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger49" type="passenger" depart="39.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger50" type="passenger" depart="40.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger51" type="passenger" depart="40.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger52" type="passenger" depart="41.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger53" type="passenger" depart="42.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger54" type="passenger" depart="43.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger55" type="passenger" depart="44.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger56" type="passenger" depart="44.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger57" type="passenger" depart="45.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger58" type="passenger" depart="46.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger59" type="passenger" depart="47.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger60" type="passenger" depart="48.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger61" type="passenger" depart="48.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger62" type="passenger" depart="49.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger63" type="passenger" depart="50.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger64" type="passenger" depart="51.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger65" type="passenger" depart="52.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger66" type="passenger" depart="52.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger67" type="passenger" depart="53.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger68" type="passenger" depart="54.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger69" type="passenger" depart="55.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger70" type="passenger" depart="56.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger71" type="passenger" depart="56.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger72" type="passenger" depart="57.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger73" type="passenger" depart="58.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger74" type="passenger" depart="59.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger75" type="passenger" depart="60.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger76" type="passenger" depart="60.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger77" type="passenger" depart="61.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger78" type="passenger" depart="62.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger79" type="passenger" depart="63.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger80" type="passenger" depart="64.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger81" type="passenger" depart="64.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger82" type="passenger" depart="65.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger83" type="passenger" depart="66.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger84" type="passenger" depart="67.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger85" type="passenger" depart="68.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger86" type="passenger" depart="68.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger87" type="passenger" depart="69.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger88" type="passenger" depart="70.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger89" type="passenger" depart="71.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger90" type="passenger" depart="72.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger91" type="passenger" depart="72.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger92" type="passenger" depart="73.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger93" type="passenger" depart="74.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger94" type="passenger" depart="75.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger95" type="passenger" depart="76.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger96" type="passenger" depart="76.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger97" type="passenger" depart="77.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger98" type="passenger" depart="78.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger99" type="passenger" depart="79.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger100" type="passenger" depart="80.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger101" type="passenger" depart="80.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger102" type="passenger" depart="81.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger103" type="passenger" depart="82.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger104" type="passenger" depart="83.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger105" type="passenger" depart="84.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger106" type="passenger" depart="84.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger107" type="passenger" depart="85.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger108" type="passenger" depart="86.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger109" type="passenger" depart="87.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger110" type="passenger" depart="88.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger111" type="passenger" depart="88.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger112" type="passenger" depart="89.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger113" type="passenger" depart="90.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger114" type="passenger" depart="91.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger115" type="passenger" depart="92.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger116" type="passenger" depart="92.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger117" type="passenger" depart="93.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger118" type="passenger" depart="94.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger119" type="passenger" depart="95.20">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger120" type="passenger" depart="96.00">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger121" type="passenger" depart="96.80">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger122" type="passenger" depart="97.60">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger123" type="passenger" depart="98.40">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger124" type="passenger" depart="99.20">
+        <route edges="A1B1 B1C1"/>
     </vehicle>
 </routes>
