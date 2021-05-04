@@ -1,13 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
-// ███╗░░██╗██████╗░███╗░░██╗░░██╗██╗██╗██╗░░░██╗░█████╗░
-// ████╗░██║██╔══██╗████╗░██║░██╔╝██║██║██║░░░██║██╔══██╗
-// ██╔██╗██║██║░░██║██╔██╗██║██╔╝░██║██║╚██╗░██╔╝██║░░╚═╝
-// ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
-// ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
-// ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
-// https://github.com/guibaraujo/NDN4IVC
-
 #include "ns3/tms-consumer.h"
 #include "ns3/tms-consumer-app.h"
 #include "ns3/tms-provider.h"
@@ -47,7 +39,7 @@
 // specify the SUMO scenario put in 'ndn4ivc/traces' directory
 //#define SUMO_SCENARIO_NAME "intersection"
 //#define SUMO_SCENARIO_NAME "highway"
-#define SUMO_SCENARIO_NAME "square-map"
+#define SUMO_SCENARIO_NAME "square-map-test"
 //#define SUMO_SCENARIO_NAME "osm-openstreetmap"
 //#define SUMO_SCENARIO_NAME "multi-lane"
 
@@ -60,12 +52,120 @@ echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/*.rou.xml |grep 'vehicle
 
 namespace ns3 {
 
-NS_LOG_COMPONENT_DEFINE ("vndn-example-tms");
-
-NS_OBJECT_ENSURE_REGISTERED (TmsConsumerApp);
-NS_OBJECT_ENSURE_REGISTERED (TmsProviderApp);
+NS_LOG_COMPONENT_DEFINE ("wsmp-example-tms");
 
 std::map<uint32_t, ns3::Time> nodesDisable2Move;
+Ptr<TraciClient> sumoClient;
+uint64_t interestInterval;
+
+//Note: this is a promiscuous trace for all packet reception. This is also on physical layer, so packets still have WifiMacHeader
+void
+Rx (std::string context, Ptr<const Packet> packet, uint16_t channelFreqMhz, WifiTxVector txVector,
+    MpduInfo aMpdu, SignalNoiseDbm signalNoise)
+{
+  //context will include info about the source of this event. Use string manipulation if you want to extract info.
+  std::cout << BOLD_CODE << context << END_CODE << std::endl;
+  //Print the info.
+  //Channel frequency has Left & Right limits - "nome" da frequencia no NS3 é (Left+Right)/2"
+  //E.g. CCH (ch 178) (5.885+5.895)/2 -->> 5890
+  std::cout << "\tSize=" << packet->GetSize () << " Freq=" << channelFreqMhz
+            << " Mode=" << txVector.GetMode () << " Signal=" << signalNoise.signal
+            << " Noise=" << signalNoise.noise << std::endl;
+
+  //We can also examine the WifiMacHeader
+  WifiMacHeader hdr;
+  if (packet->PeekHeader (hdr))
+    {
+      std::cout << "\tDestination MAC : " << hdr.GetAddr1 () << "\tSource MAC : " << hdr.GetAddr2 ()
+                << std::endl;
+    }
+}
+
+/*
+ * This function works for ns-3.30 onwards. For previous version, remove the last parameter (the "WifiPhyRxfailureReason")
+ */
+void
+RxDrop (std::string context, Ptr<const Packet> packet, ns3::WifiPhyRxfailureReason reason)
+{
+  std::cout << BOLD_CODE << YELLOW_CODE << "Packet Rx Dropped!" << END_CODE << std::endl;
+  //From ns-3.30, the reasons are defined in an enum type in ns3::WifiPhy class.
+  std::cout << " Reason : " << reason << std::endl;
+  std::cout << context << std::endl;
+
+  WifiMacHeader hdr;
+  if (packet->PeekHeader (hdr))
+    {
+
+      std::cout << " Destination MAC : " << hdr.GetAddr1 () << "\tSource MAC : " << hdr.GetAddr2 ()
+                << "\tSeq No. " << hdr.GetSequenceNumber () << std::endl;
+    }
+}
+
+//Fired when a packet is Enqueued in MAC
+void
+EnqueueTrace (std::string context, Ptr<const WifiMacQueueItem> item)
+{
+  std::cout << BLUE_CODE << "A Packet was enqueued : " << context << END_CODE << std::endl;
+
+  Ptr<const Packet> p = item->GetPacket ();
+  /*
+	 * Do something with the packet, like attach a tag. ns3 automatically attaches a timestamp for enqueued packets;
+	 */
+}
+//Fired when a packet is Dequeued from MAC layer. A packet is dequeued before it is transmitted.
+void
+DequeueTrace (std::string context, Ptr<const WifiMacQueueItem> item)
+{
+  std::cout << BLUE_CODE << "A Packet was dequeued : " << context << END_CODE << std::endl;
+
+  Ptr<const Packet> p = item->GetPacket ();
+  Time queue_delay = Simulator::Now () - item->GetTimeStamp ();
+
+  //Keep in mind that a packet might get dequeued (dropped_ if it exceeded MaxDelay (default is 500ms)
+  std::cout << "\tQueuing delay=" << queue_delay << std::endl;
+}
+
+void
+sendPacket ()
+{
+  // node 0 is RSU
+  for (uint32_t i = 1; i < ns3::NodeList::GetNNodes (); i++)
+    {
+      Ptr<Node> node = ns3::NodeList::GetNode (i);
+      uint32_t id = node->GetId ();
+      
+      if (!node->GetDevice (0)->GetObject<WaveNetDevice> ()->GetPhy (0)->IsStateOff ())
+        //if (0)
+        {
+          //Go over all node's device.
+          Ptr<NetDevice> di = node->GetDevice (0);
+          Ptr<WaveNetDevice> wdi = DynamicCast<WaveNetDevice> (di);
+
+          Ptr<Packet> packet_i = Create<Packet> (100); //size 100
+
+          TxInfo txi;
+          txi.preamble = WIFI_PREAMBLE_LONG;
+          txi.channelNumber = CCH;
+
+          //destination MAC
+          Mac48Address dest = Mac48Address::GetBroadcast ();
+          // 0x88dc is the ethertype corresponding to WSMP.IPv4's etherType is 0x0800, and IPv6 is 0x86DD The standard
+          // doesn't allow sending IP packets over CCH channel uint16_t protocol = 0x88dc;
+          uint16_t protocol = 0x88dc;
+
+          //I am going to set only the data rate for packets sent by node1
+          txi.dataRate = WifiMode ("OfdmRate6MbpsBW10MHz");
+
+          ns3::Ptr<ns3::UniformRandomVariable> delay =
+              ns3::CreateObject<ns3::UniformRandomVariable> ();
+
+          // 500 is a magic number - update later
+          Simulator::Schedule (MilliSeconds (delay->GetInteger (0.0, 500.0)), &WaveNetDevice::SendX,
+                               wdi, packet_i, dest, protocol, txi);
+        }
+    }
+    Simulator::Schedule (MilliSeconds (interestInterval), &sendPacket);
+}
 
 void
 checkDisableNodes ()
@@ -130,7 +230,7 @@ main (int argc, char *argv[])
 
   uint32_t nRSUs = 1;
 
-  uint32_t interestInterval = 1000;
+  interestInterval = 1000;
   uint32_t simTime = 600;
   bool enablePcap = false;
   bool enableLog = true;
@@ -177,11 +277,11 @@ main (int argc, char *argv[])
       // *
 
       std::vector<std::string> componentsLogLevelAll;
-      //componentsLogLevelAll.push_back ("vndn-example-tms");
+      componentsLogLevelAll.push_back ("wsmp-example-tms");
       //componentsLogLevelAll.push_back ("ndn.TmsConsumer");
       //componentsLogLevelAll.push_back ("ndn.TmsProvider");
       //componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastVanetStrategy");
-      componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
+      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
       //componentsLogLevelAll.push_back ("WifiPhy");
 
       std::vector<std::string> componentsLogLevelError;
@@ -215,20 +315,27 @@ main (int argc, char *argv[])
    * Ref.: doi: 10.1109/VETECF.2007.461
    */
   std::cout << "Installing networking devices for every node..." << std::endl;
-  ndn::WifiSetupHelper wifi;
-  NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enablePcap);
+  YansWifiChannelHelper waveChannel = YansWifiChannelHelper::Default ();
+  //Default parameters for propagation delay and propagation loss
+  YansWavePhyHelper wavePhy = YansWavePhyHelper::Default ();
+  wavePhy.SetChannel (waveChannel.Create ());
+  wavePhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
 
-  // install Ndn stack
-  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes ... " << std::endl;
-  ndn::StackHelper ndnHelper;
-  ndnHelper.AddFaceCreateCallback (WifiNetDevice::GetTypeId (), MakeCallback (FixLinkTypeAdhocCb));
-  //ndnHelper.setPolicy("nfd::cs::lru");
-  ndnHelper.setCsSize (1000);
-  ndnHelper.SetDefaultRoutes (true);
-  ndnHelper.InstallAll ();
-  // forwarding strategy
-  //ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
-  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast-vanet");
+  wavePhy.Set ("TxPowerStart", DoubleValue (33));
+  wavePhy.Set ("TxPowerEnd", DoubleValue (33));
+
+  //For mac layer will use QosWaveMacHelper
+  QosWaveMacHelper waveMac = QosWaveMacHelper::Default ();
+  WaveHelper waveHelper = WaveHelper::Default ();
+
+  waveHelper.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode",
+                                      StringValue ("OfdmRate6MbpsBW10MHz"), "ControlMode",
+                                      StringValue ("OfdmRate6MbpsBW10MHz"), "NonUnicastMode",
+                                      StringValue ("OfdmRate6MbpsBW10MHz"));
+
+  NetDeviceContainer devices = waveHelper.Install (wavePhy, waveMac, nodePool);
+  //It will be more information in pcap file
+  wavePhy.EnablePcap ("WaveTest", devices);
 
   // install mobility & config SUMO
   std::cout << "Config SUMO/TraCI..." << std::endl;
@@ -242,7 +349,7 @@ main (int argc, char *argv[])
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
   /*** setup Traci and start SUMO ***/
-  Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
+  sumoClient = CreateObject<TraciClient> ();
   sumoClient->SetAttribute (
       "SumoConfigPath", StringValue ("contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/sim.sumocfg"));
   sumoClient->SetAttribute ("SumoBinaryPath",
@@ -276,11 +383,6 @@ main (int argc, char *argv[])
                                         << "] has initialized and the app installed!");
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
-    Ptr<TmsConsumerApp> tmsConsumerApp = CreateObject<TmsConsumerApp> ();
-    tmsConsumerApp->SetAttribute ("Frequency", UintegerValue (interestInterval)); // in milliseconds
-    tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
-
-    includedNode->AddApplication (tmsConsumerApp);
 
     return includedNode;
   };
@@ -294,25 +396,9 @@ main (int argc, char *argv[])
     NS_LOG_INFO ("Ns3SumoSetup: node [" << exNode->GetId ()
                                         << "] will be finished and disconnected!");
 
-    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
-                 << exNode->GetId () << "VehicleId:" << sumoClient->GetVehicleId (exNode));
-
-    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
-                 << exNode->GetId () << "Type:"
-                 << sumoClient->vehicle.getVehicleClass (sumoClient->GetVehicleId (exNode)));
-
-    Ptr<TmsConsumerApp> tmsConsumerApp = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
-
-    // App will be removed
-    if (tmsConsumerApp)
-      {
-        tmsConsumerApp->StopApplication ();
-        //tmsConsumerApp->SetStopTime (NanoSeconds (1));
-      }
-
     for (uint32_t i = 0; i < exNode->GetNDevices (); ++i)
-      if (exNode->GetDevice (i)->GetObject<WifiNetDevice> ()) // it is a WifiNetDevice
-        exNode->GetDevice (i)->GetObject<WifiNetDevice> ()->GetPhy ()->SetOffMode ();
+      if (exNode->GetDevice (0)->GetObject<WaveNetDevice> ()) // it is a WifiNetDevice
+        exNode->GetDevice (0)->GetObject<WaveNetDevice> ()->GetPhy (0)->SetOffMode ();
     //GetPhy ()->SetSleepMode ();
 
     // avoid animation error (link drag) in PyViz
@@ -327,19 +413,44 @@ main (int argc, char *argv[])
   Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
   mobilityRsuNode->SetPosition (Vector (50, 25, 3));
   nodeCounter++;
-  /* RSU apps */
-  ApplicationContainer tmsProviderContainer;
-  ndn::AppHelper tmsProviderHelper ("TmsProviderApp");
-  tmsProviderHelper.SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
-  tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (0)));
 
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
                ns3::UintegerValue (SCH3));
 
   Simulator::Schedule (Seconds (1), &checkDisableNodes);
+  Simulator::Schedule (Seconds (1), &sendPacket);
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
+
+  /********** Using TRACESOURCES to trace some simulation events **********/
+
+  /*
+	 * Connecting to a promiscous Rx trace source. This will invoke the 'Rx' function everytime a packet is received.
+	 *
+	 * The MonitorSnifferRx trace is defined in WifiPhy.
+	 */
+  Config::Connect ("/NodeList/*/DeviceList/*/$ns3::WaveNetDevice/PhyEntities/*/MonitorSnifferRx",
+                   MakeCallback (&Rx));
+
+  /*
+	 * What if some packets were dropped due to collision, or whatever? We use this trace to fire RxDrop function
+	 */
+  Config::Connect ("/NodeList/*/DeviceList/*/$ns3::WaveNetDevice/PhyEntities/*/PhyRxDrop",
+                   MakeCallback (&RxDrop));
+
+  /*
+	 * We can also trace some MAC layer details
+	 * This will match seven values seven for each channel of the WiFi
+	 */
+  Config::Connect (
+      "/NodeList/*/DeviceList/*/$ns3::WaveNetDevice/MacEntities/*/$ns3::OcbWifiMac/*/Queue/Enqueue",
+      MakeCallback (&EnqueueTrace));
+
+  Config::Connect (
+      "/NodeList/*/DeviceList/*/$ns3::WaveNetDevice/MacEntities/*/$ns3::OcbWifiMac/*/Queue/Dequeue",
+      MakeCallback (&DequeueTrace));
+
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();

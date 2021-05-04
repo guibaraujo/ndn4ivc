@@ -294,13 +294,6 @@ main (int argc, char *argv[])
     NS_LOG_INFO ("Ns3SumoSetup: node [" << exNode->GetId ()
                                         << "] will be finished and disconnected!");
 
-    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
-                 << exNode->GetId () << "VehicleId:" << sumoClient->GetVehicleId (exNode));
-
-    NS_LOG_INFO ("Ns3SumoSetup logging: node ["
-                 << exNode->GetId () << "Type:"
-                 << sumoClient->vehicle.getVehicleClass (sumoClient->GetVehicleId (exNode)));
-
     Ptr<TmsConsumerApp> tmsConsumerApp = DynamicCast<TmsConsumerApp> (exNode->GetApplication (0));
 
     // App will be removed
