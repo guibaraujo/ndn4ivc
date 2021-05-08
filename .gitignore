@@ -161,5 +161,8 @@ _log
 _todo
 
 # Sumo
-*.output.tripinfo.xml
+*.output*.xml
 SumoError.log
+
+# Logs NDN4IVC
+results/logfiles/*

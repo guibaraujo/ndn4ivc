@@ -7,7 +7,4 @@ def build(bld):
 
     obj = bld.create_ns3_program('vndn-example-tms', ['ndn4ivc'])
     obj.source = 'vndn-example-tms.cc'
-
-    obj = bld.create_ns3_program('wsmp-example-tms', ['ndn4ivc'])
-    obj.source = 'wsmp-example-tms.cc'
     

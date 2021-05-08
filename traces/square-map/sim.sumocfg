@@ -1,7 +1,7 @@
 <configuration>
     <input>
        <net-file value="map.net.xml"/>
-       <route-files value="passenger_routes.rou.xml,emergency_routes.rou.xml,passenger_accident.xml"/>
+       <route-files value="passenger_routes.rou.xml,emergency_routes.rou.xml,passenger_accident.rou.xml"/>
     </input>
 
     <output>

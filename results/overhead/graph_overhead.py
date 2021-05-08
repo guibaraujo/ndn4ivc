@@ -23,12 +23,12 @@ width = 0.2
 
 labels = ['NDN Multicast', 'WSMP Flooding']
 
-ax.bar(labels, df_list[0], width, edgecolor='white', hatch='.', label='Interest Packet')
+ax.bar(labels, df_list[0], width, edgecolor='white', hatch='.', label='Pacotes de Interesse')
 ax.bar(labels, df_list[1], width, yerr=df_list[2], hatch='', bottom=df_list[0],
-       label='Data Packet')
+       label='Pacotes de Dados')
 
 ax.legend()
-plt.ylabel("# Packets")
+plt.ylabel("# Pacotes")
 # plt.legend(loc = 'center right', fancybox=True)
 plt.legend(loc='upper center', fancybox=True)
 plt.grid(True, axis='y')
