@@ -21,9 +21,15 @@ WifiSetupHelper::ConfigureDevices (NodeContainer &nodes, bool enablePcap)
   wifiPhy.SetChannel (wifiChannel.Create ());
   wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11);
 
-  //wifiPhy.Set ("TxPowerStart", DoubleValue (33)); //Minimum available transmission level (dbm)
-  //wifiPhy.Set ("TxPowerEnd", DoubleValue (33)); //Maximum available transmission level (dbm)
-  //wifiPhy.Set ("TxPowerLevels", UintegerValue (8)); //Number of transmission power levels available between TxPowerStart and TxPowerEnd included
+  // 21dBm ~ 70m 
+  // 24dBm ~ 100m
+  // 30dBm ~ 150m
+  wifiPhy.Set ("TxPowerStart", DoubleValue (21)); //Minimum available transmission level (dbm)
+  wifiPhy.Set ("TxPowerEnd", DoubleValue (21)); //Maximum available transmission level (dbm)
+  wifiPhy.Set (
+      "TxPowerLevels",
+      UintegerValue (
+          8)); //Number of transmission power levels available between TxPowerStart and TxPowerEnd included
 
   NqosWaveMacHelper wifi80211pMac = NqosWaveMacHelper::Default ();
   wifi80211pMac.SetType (

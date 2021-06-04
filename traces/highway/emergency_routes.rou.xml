@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Sun May  2 13:14:04 2021 by Eclipse SUMO duarouter Version 1.1.0
+<!-- generated on Thu May 13 13:07:05 2021 by Eclipse SUMO duarouter Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
 
     <input>
@@ -14,8 +14,8 @@
     </output>
 
     <time>
-        <begin value="20.0"/>
-        <end value="21.0"/>
+        <begin value="10.0"/>
+        <end value="300.0"/>
     </time>
 
     <report>
@@ -29,7 +29,49 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="emergency" vClass="emergency" color="white"/>
-    <vehicle id="emergency0" type="emergency" depart="20.00">
+    <vehicle id="emergency0" type="emergency" depart="10.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency1" type="emergency" depart="30.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency2" type="emergency" depart="50.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency3" type="emergency" depart="70.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency4" type="emergency" depart="90.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency5" type="emergency" depart="110.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency6" type="emergency" depart="130.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency7" type="emergency" depart="150.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency8" type="emergency" depart="170.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency9" type="emergency" depart="190.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency10" type="emergency" depart="210.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency11" type="emergency" depart="230.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency12" type="emergency" depart="250.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency13" type="emergency" depart="270.00" departLane="best">
+        <route edges="A1B1 B1C1"/>
+    </vehicle>
+    <vehicle id="emergency14" type="emergency" depart="290.00" departLane="best">
         <route edges="A1B1 B1C1"/>
     </vehicle>
 </routes>

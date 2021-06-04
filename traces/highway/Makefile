@@ -2,9 +2,9 @@ START_COLOR='\033[1;32m'
 END_COLOR='\033[0m'
 
 # Passenger car
-PASS_PARAMS= -b 0 -e 100 -p 0.8 --vehicle-class passenger
+PASS_PARAMS= -b 0 -e 300 -p 0.5 --vehicle-class passenger --trip-attributes="departLane=\"best\" departSpeed=\"max\" maxSpeed=\"11.11\""
 # Emergency vehicle
-EMER_PARAMS= -b 20 -e 21 -p 100 --vehicle-class emergency --trip-attributes="color=\"255,255,255\""
+EMER_PARAMS= -b 10 -e 300 -p 20 --vehicle-class emergency --trip-attributes="color=\"255,255,255\" departLane=\"best\""
 
 all: clean trips
 

@@ -6,7 +6,6 @@
 // ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
 // ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
 // ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
-// https://github.com/guibaraujo/NDN4IVC
 
 #include "ns3/beacon.h"
 #include "ns3/beacon-app.h"
@@ -18,7 +17,9 @@
 #include "ns3/network-module.h"
 #include "ns3/ndnSIM-module.h"
 #include "ns3/internet-module.h"
+
 #include "ns3/wifi-setup-helper.h"
+#include "ns3/wifi-adhoc-helper.h"
 
 #include "ns3/traci-module.h"
 #include "ns3/netanim-module.h"
@@ -27,6 +28,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <exception>
+#include <vector>
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #define YELLOW_CODE "\033[33m"
 #define RED_CODE "\033[31m"
@@ -35,8 +41,8 @@
 #define CYAN_CODE "\033[36m"
 #define END_CODE "\033[0m"
 
-// SUMO scenario in the directory 'ndn4ivc/traces' 
-#define SUMO_SCENARIO_NAME "intersection"
+// specify the SUMO scenario in the 'ndn4ivc/traces' directory
+#define SUMO_SCENARIO_NAME "highway"
 
 #define SHELLSCRIPT_NUM_VEHICLES \
   "\
@@ -45,20 +51,33 @@
 echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME "/*.rou.xml |grep 'vehicle id'|wc -l` \n\
 "
 
-#define SHELLSCRIPT_SUMOMAP_BOUNDARIES                \
-  "\
-#/bin/bash \n\
-#echo $1 \n\
-echo `cat contrib/ndn4ivc/traces/" SUMO_SCENARIO_NAME \
-  "/*.net.xml |grep '<location'|cut -d '=' -f3|cut -d '\"' -f2` \n\
-"
-
-using namespace ns3;
+namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("vndn-example-beacon");
 NS_OBJECT_ENSURE_REGISTERED (BeaconApp);
 
-namespace ns3 {
+std::map<uint32_t, ns3::Time> nodesDisable2Move;
+
+void
+checkDisableNodes ()
+{
+  for (auto it = nodesDisable2Move.begin (), it_next = it; it != nodesDisable2Move.end ();
+       it = it_next)
+    {
+      ++it_next;
+      Ptr<Node> exNode = ns3::NodeList::GetNode (it->first);
+      // NOTE:we'll put the node in a new position, outside the simulation
+      // communication range, but this is just for better visualization mode
+      if ((ns3::Time) ns3::Simulator::Now ().GetSeconds () - it->second > 1)
+        {
+          Ptr<ConstantPositionMobilityModel> mob =
+              exNode->GetObject<ConstantPositionMobilityModel> ();
+          mob->SetPosition (Vector ((double) exNode->GetId (), -4000 - (rand () % 25), -5000.0));
+          nodesDisable2Move.erase (it);
+        }
+    }
+  Simulator::Schedule (Seconds (1), &checkDisableNodes);
+}
 
 std::string
 exec (const char *cmd)
@@ -73,67 +92,84 @@ exec (const char *cmd)
   return result;
 }
 
-vector<double>
-splitSumoMapBoundaries (std::string s, std::string delimiter)
-{
-  size_t posStart = 0, posEnd, delimLen = delimiter.length ();
-  string token;
-  vector<double> res;
-
-  while ((posEnd = s.find (delimiter, posStart)) != string::npos)
-    {
-      token = s.substr (posStart, posEnd - posStart);
-      posStart = posEnd + delimLen;
-      res.push_back (std::stof (token));
-    }
-
-  res.push_back (std::stof (s.substr (posStart)));
-  return res;
-}
-
 int
 main (int argc, char *argv[])
 {
   std::cout << CYAN_CODE << BOLD_CODE << "Starting simulation... " END_CODE << std::endl;
 
   uint32_t nVehicles = std::stoi (exec (SHELLSCRIPT_NUM_VEHICLES));
-  // Getting the network boundary for 2D SUMO map >> coordinate C1(x1,y1) and coordinate C2(x2,y2)
-  vector<double> sumoMapBoundaries =
-      splitSumoMapBoundaries (exec (SHELLSCRIPT_SUMOMAP_BOUNDARIES), ",");
 
   std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
-  std::cout << "SUMO map boundaries: C1(" << sumoMapBoundaries.at (0) << ","
-            << sumoMapBoundaries.at (1) << ") C2(" << sumoMapBoundaries.at (2) << ","
-            << sumoMapBoundaries.at (3) << ")" << std::endl;
 
-  uint32_t nRSUs = 1;
+  uint32_t nRSUs = 0;
 
-  uint32_t beaconInterval = 1000;
+  uint32_t interestInterval = 1000;
   uint32_t simTime = 600;
   bool enablePcap = false;
   bool enableLog = true;
   bool enableSumoGui = false;
 
-  std::cout << "Number of nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
-  std::cout << "Number of Road Side Units (RSUs): " << nRSUs << std::endl;
+  std::cout << "# nodes (vehicles) detected in SUMO scenario: " << nVehicles << std::endl;
+  std::cout << "# Road Side Units (RSUs): " << nRSUs << std::endl;
 
-  if (!nVehicles || sumoMapBoundaries.size () < 4)
+  if (!nVehicles)
     throw std::runtime_error ("SUMO failed!");
 
   // command line attibutes
   CommandLine cmd;
-  cmd.AddValue ("i", "Beacon interval (milliseconds)", beaconInterval);
+  cmd.AddValue ("i", "Interest interval (milliseconds)", interestInterval);
   cmd.AddValue ("s", "Simulation time (seconds)", simTime);
   cmd.AddValue ("pcap", "Enable PCAP", enablePcap);
   cmd.AddValue ("log", "Enable Log", enableLog);
   cmd.AddValue ("sumo-gui", "Enable SUMO with graphical user interface", enableSumoGui);
   cmd.Parse (argc, argv);
 
-  if (enableLog)
+  // alternative for NS_LOG="class|token" ./waf
+  if (enableLog) // see more in https://www.nsnam.org/docs/manual/html/logging.html
     {
-      LogComponentEnable ("vndn-example-beacon", LOG_LEVEL_INFO);
-      LogComponentEnable ("ndn.Beacon", LOG_LEVEL_INFO);
-      LogComponentEnable ("TraciClient", LOG_LEVEL_INFO);
+      // The severity class and level options can be given in the NS_LOG environment variable by these tokens:
+      // Class	Level
+      // error	level_error
+      // warn	level_warn
+      // debug	level_debug
+      // info	level_info
+      // function	level_function
+      // logic	level_logic
+      // level_all
+      // all
+      // *
+
+      // The options can be given in the NS_LOG environment variable by these tokens:
+      // Token	Alternate
+      // prefix_func	func
+      // prefix_time	time
+      // prefix_node	node
+      // prefix_level	level
+      // prefix_all
+      // all
+      // *
+
+      std::vector<std::string> componentsLogLevelAll;
+      componentsLogLevelAll.push_back ("vndn-example-beacon");
+      componentsLogLevelAll.push_back ("ndn.Beacon");
+      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastStrategy");
+      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
+      //componentsLogLevelAll.push_back ("WifiPhy");
+
+      std::vector<std::string> componentsLogLevelError;
+      componentsLogLevelError.push_back ("TraciClient");
+
+      for (auto const &c : componentsLogLevelAll)
+        {
+          LogComponentEnable (c.c_str (), LOG_LEVEL_ALL);
+          LogComponentEnable (c.c_str (), LOG_PREFIX_ALL);
+        }
+
+      for (auto const &c : componentsLogLevelError)
+        {
+          LogComponentEnable (c.c_str (), LOG_LEVEL_ERROR);
+          LogComponentEnable (c.c_str (), LOG_PREFIX_ALL);
+        }
     }
 
   /* create node pool and counter; large enough to cover all sumo vehicles */
@@ -154,31 +190,30 @@ main (int argc, char *argv[])
   ndn::WifiSetupHelper wifi;
   NetDeviceContainer devices = wifi.ConfigureDevices (nodePool, enablePcap);
 
-  // install mobility model
-  std::cout << "Setting up mobility... " << std::endl;
+  // install Ndn stack
+  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes ... " << std::endl;
+  ndn::StackHelper ndnHelper;
+  ndnHelper.AddFaceCreateCallback (WifiNetDevice::GetTypeId (), MakeCallback (FixLinkTypeAdhocCb));
+  //ndnHelper.setPolicy("nfd::cs::lru");
+  ndnHelper.setCsSize (1000);
+  ndnHelper.SetDefaultRoutes (true);
+  ndnHelper.InstallAll ();
+  // forwarding strategy
+  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast-vanet");
+  ndn::StrategyChoiceHelper::Install (nodePool, "/localhop/beacon",
+                                      "/localhost/nfd/strategy/localhop");
 
-  /*** setup mobility and position to node pool ***/
+  // install mobility & config SUMO
+  std::cout << "Config SUMO/TraCI..." << std::endl;
   MobilityHelper mobility;
   Ptr<UniformDiscPositionAllocator> positionAlloc = CreateObject<UniformDiscPositionAllocator> ();
   positionAlloc->SetX (0);
-  positionAlloc->SetY (sumoMapBoundaries.at (1) - 5000);
+  positionAlloc->SetY (-5000 - (rand () % 25));
   positionAlloc->SetZ (-5000.0);
-  positionAlloc->SetRho (20.0);
+  positionAlloc->SetRho (25.0);
   mobility.SetPositionAllocator (positionAlloc);
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (nodePool);
-
-  /* setup RSU */
-  //ApplicationContainer rsuSpeedControlApps = rsuSpeedControlHelper.Install (nodePool.Get (0));
-  //rsuSpeedControlApps.Start (Seconds (1.0));
-  //rsuSpeedControlApps.Stop (simulationTime);
-
-  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
-  nodeCounter++;
-  //mobilityRsuNode->SetPosition (Vector (70, 70, 3.0)); // set RSU to fixed position
-  mobilityRsuNode->SetPosition (Vector (((sumoMapBoundaries.at (1) + sumoMapBoundaries.at (3)) / 2),
-                                        70, 3.0)); // set RSU to fixed position
-
   /*** setup Traci and start SUMO ***/
   Ptr<TraciClient> sumoClient = CreateObject<TraciClient> ();
   sumoClient->SetAttribute (
@@ -210,15 +245,15 @@ main (int argc, char *argv[])
     if (nodeCounter >= nodePool.GetN ())
       NS_FATAL_ERROR ("Node Pool empty: " << nodeCounter << " nodes created.");
 
-    NS_LOG_INFO ("Node/application " << nodeCounter << " will be turned on now at "
-                                     << ns3::Simulator::Now ());
+    NS_LOG_INFO ("Ns3SumoSetup: node [" << nodeCounter
+                                        << "] has initialized and the app installed!");
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
-    Ptr<BeaconApp> beaconApp = CreateObject<BeaconApp> ();
-    beaconApp->SetAttribute ("Frequency", UintegerValue (beaconInterval)); // in milliseconds
-    beaconApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
+    Ptr<BeaconApp> tmsConsumerApp = CreateObject<BeaconApp> ();
+    tmsConsumerApp->SetAttribute ("Frequency", UintegerValue (interestInterval));
+    tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient));
 
-    includedNode->AddApplication (beaconApp);
+    includedNode->AddApplication (tmsConsumerApp);
 
     return includedNode;
   };
@@ -229,40 +264,41 @@ main (int argc, char *argv[])
    *  put away ('removed') from the simulation scenario
    */
   std::function<void (Ptr<Node>)> shutdownSumoVehicle = [&] (Ptr<Node> exNode) {
-    Ptr<BeaconApp> c_app = DynamicCast<BeaconApp> (exNode->GetApplication (0));
-    NS_LOG_INFO ("Node/application " << exNode->GetId () << " will be turned off now at "
-                                     << ns3::Simulator::Now ());
-    c_app->StopApplication ();
+    NS_LOG_INFO ("Ns3SumoSetup: node [" << exNode->GetId ()
+                                        << "] will be finished and disconnected!");
 
-    // put the node in new position, outside the simulation communication range
-    Ptr<ConstantPositionMobilityModel> mob = exNode->GetObject<ConstantPositionMobilityModel> ();
-    mob->SetPosition (Vector ((double) exNode->GetId (),
-                              sumoMapBoundaries.at (1) - 5000 - (rand () % 25), -5000.0));
+    Ptr<BeaconApp> tmsConsumerApp = DynamicCast<BeaconApp> (exNode->GetApplication (0));
 
-    // NOTE: further actions could be required for a save shutdown!
+    // App will be removed
+    if (tmsConsumerApp)
+      {
+        tmsConsumerApp->StopApplication ();
+        //tmsConsumerApp->SetStopTime (NanoSeconds (1));
+      }
+
+    for (uint32_t i = 0; i < exNode->GetNDevices (); ++i)
+      if (exNode->GetDevice (i)->GetObject<WifiNetDevice> ()) // it is a WifiNetDevice
+        exNode->GetDevice (i)->GetObject<WifiNetDevice> ()->GetPhy ()->SetOffMode ();
+    //GetPhy ()->SetSleepMode ();
+
+    // avoid animation error (link drag) in PyViz
+    nodesDisable2Move.emplace (exNode->GetId (), (ns3::Time) ns3::Simulator::Now ().GetSeconds ());
+
+    //the SUMO node has been finished and the ns3 node has also fully 'deactivated' accordingly
+    //further actions could be required for a save shutdown!
   };
-
-  // install Ndn stack
-  std::cout << "Installing Ndn stack in " << nVehicles + nRSUs << " nodes... " << std::endl;
-  ndn::StackHelper ndnHelper;
-  ndnHelper.SetDefaultRoutes (true);
-  ndnHelper.InstallAll ();
-  // forwarding strategy
-  ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
-  ndn::StrategyChoiceHelper::Install (nodePool, "/localhop/beacon",
-                                      "/localhost/nfd/strategy/localhop");
 
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
-               ns3::UintegerValue (SCH3));
+               ns3::UintegerValue (SCH1));
+
+  Simulator::Schedule (Seconds (1), &checkDisableNodes);
 
   sumoClient->SumoSetup (setupNewSumoVehicle, shutdownSumoVehicle);
   std::cout << YELLOW_CODE << BOLD_CODE << "Simulation is running: " END_CODE << std::endl;
   Simulator::Stop (Seconds (simTime));
   Simulator::Run ();
   std::cout << RED_CODE << BOLD_CODE << "Post simulation: " END_CODE << std::endl;
-  Simulator::Destroy ();
-
   return 0;
 };
 } // namespace ns3

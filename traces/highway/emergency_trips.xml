@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- generated on 2021-05-02 13:14:04.725267 by $Id$
-  options: -n map.net.xml -r emergency_routes.rou.xml -o emergency_trips.xml -b 20 -e 21 -p 100 <doubleminus>vehicle-class emergency <doubleminus>trip-attributes=color="255,255,255"
+<!-- generated on 2021-05-13 13:07:05.391099 by $Id$
+  options: -n map.net.xml -r emergency_routes.rou.xml -o emergency_trips.xml -b 10 -e 300 -p 20 <doubleminus>vehicle-class emergency <doubleminus>trip-attributes=color="255,255,255" departLane="best"
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="emergency" vClass="emergency" color="255,255,255"/>
-    <trip id="0" depart="20.00" from="A1B1" to="B1C1" type="emergency"/>
+    <trip id="0" depart="10.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="1" depart="30.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="2" depart="50.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="3" depart="70.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="4" depart="90.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="5" depart="110.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="6" depart="130.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="7" depart="150.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="8" depart="170.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="9" depart="190.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="10" depart="210.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="11" depart="230.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="12" depart="250.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="13" depart="270.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
+    <trip id="14" depart="290.00" from="A1B1" to="B1C1" departLane="best" type="emergency"/>
 </routes>

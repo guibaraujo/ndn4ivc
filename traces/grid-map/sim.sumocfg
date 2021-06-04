@@ -1,0 +1,22 @@
+<configuration>
+    <input>
+       <net-file value="map.net.xml"/>
+       <route-files value="passenger_routes.rou.xml,passenger_accident.rou.xml"/>
+    </input>
+
+    <output>
+         <tripinfo-output value="sumo-output.tripinfo.xml"/>
+         <emission-output value="sumo-output.emission.xml"/>
+         <!-- <fcd-output value="sumo-output.fcd.xml"/> -->
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+        <step-length value="0.1"/>
+    </time>
+
+    <gui_only>
+        <gui-settings-file value="settings.xml"/>
+     </gui_only>     
+</configuration>

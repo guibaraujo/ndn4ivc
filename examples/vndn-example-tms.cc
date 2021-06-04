@@ -6,7 +6,6 @@
 // ██║╚████║██║░░██║██║╚████║███████║██║░╚████╔╝░██║░░██╗
 // ██║░╚███║██████╔╝██║░╚███║╚════██║██║░░╚██╔╝░░╚█████╔╝
 // ╚═╝░░╚══╝╚═════╝░╚═╝░░╚══╝░░░░░╚═╝╚═╝░░░╚═╝░░░░╚════╝░
-// https://github.com/guibaraujo/NDN4IVC
 
 #include "ns3/tms-consumer.h"
 #include "ns3/tms-consumer-app.h"
@@ -44,12 +43,9 @@
 #define CYAN_CODE "\033[36m"
 #define END_CODE "\033[0m"
 
-// specify the SUMO scenario put in 'ndn4ivc/traces' directory
-//#define SUMO_SCENARIO_NAME "intersection"
-//#define SUMO_SCENARIO_NAME "highway"
-#define SUMO_SCENARIO_NAME "square-map"
-//#define SUMO_SCENARIO_NAME "osm-openstreetmap"
-//#define SUMO_SCENARIO_NAME "multi-lane"
+// specify the SUMO scenario in the 'ndn4ivc/traces' directory
+#define SUMO_SCENARIO_NAME "grid-map"
+//#define SUMO_SCENARIO_NAME "grid-map-test"
 
 #define SHELLSCRIPT_NUM_VEHICLES \
   "\
@@ -101,24 +97,6 @@ exec (const char *cmd)
   return result;
 }
 
-vector<double>
-splitSumoMapBoundaries (std::string s, std::string delimiter)
-{
-  size_t posStart = 0, posEnd, delimLen = delimiter.length ();
-  string token;
-  vector<double> res;
-
-  while ((posEnd = s.find (delimiter, posStart)) != string::npos)
-    {
-      token = s.substr (posStart, posEnd - posStart);
-      posStart = posEnd + delimLen;
-      res.push_back (std::stof (token));
-    }
-
-  res.push_back (std::stof (s.substr (posStart)));
-  return res;
-}
-
 int
 main (int argc, char *argv[])
 {
@@ -128,7 +106,7 @@ main (int argc, char *argv[])
 
   std::cout << "Selected SUMO scenario: " << SUMO_SCENARIO_NAME << std::endl;
 
-  uint32_t nRSUs = 1;
+  uint32_t nRSUs = 2;
 
   uint32_t interestInterval = 1000;
   uint32_t simTime = 600;
@@ -144,7 +122,7 @@ main (int argc, char *argv[])
 
   // command line attibutes
   CommandLine cmd;
-  cmd.AddValue ("i", "InterestInterval interval (milliseconds)", interestInterval);
+  cmd.AddValue ("i", "Interest interval (milliseconds)", interestInterval);
   cmd.AddValue ("s", "Simulation time (seconds)", simTime);
   cmd.AddValue ("pcap", "Enable PCAP", enablePcap);
   cmd.AddValue ("log", "Enable Log", enableLog);
@@ -177,10 +155,10 @@ main (int argc, char *argv[])
       // *
 
       std::vector<std::string> componentsLogLevelAll;
-      //componentsLogLevelAll.push_back ("vndn-example-tms");
-      //componentsLogLevelAll.push_back ("ndn.TmsConsumer");
-      //componentsLogLevelAll.push_back ("ndn.TmsProvider");
-      //componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastVanetStrategy");
+      componentsLogLevelAll.push_back ("vndn-example-tms");
+      componentsLogLevelAll.push_back ("ndn.TmsConsumer");
+      componentsLogLevelAll.push_back ("ndn.TmsProvider");
+      componentsLogLevelAll.push_back ("ndn-cxx.nfd.MulticastStrategy");
       componentsLogLevelAll.push_back ("ndn-cxx.nfd.Forwarder");
       //componentsLogLevelAll.push_back ("WifiPhy");
 
@@ -227,8 +205,8 @@ main (int argc, char *argv[])
   ndnHelper.SetDefaultRoutes (true);
   ndnHelper.InstallAll ();
   // forwarding strategy
-  //ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
   ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast-vanet");
+  //ndn::StrategyChoiceHelper::Install (nodePool, "/", "/localhost/nfd/strategy/multicast");
 
   // install mobility & config SUMO
   std::cout << "Config SUMO/TraCI..." << std::endl;
@@ -277,8 +255,8 @@ main (int argc, char *argv[])
     Ptr<Node> includedNode = nodePool.Get (nodeCounter);
     nodeCounter++;
     Ptr<TmsConsumerApp> tmsConsumerApp = CreateObject<TmsConsumerApp> ();
-    tmsConsumerApp->SetAttribute ("Frequency", UintegerValue (interestInterval)); // in milliseconds
-    tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
+    tmsConsumerApp->SetAttribute ("Frequency", UintegerValue (interestInterval));
+    tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient));
 
     includedNode->AddApplication (tmsConsumerApp);
 
@@ -317,14 +295,19 @@ main (int argc, char *argv[])
 
   std::cout << "Installing RSU application... " << std::endl;
   /* RSU mobility - fixed position*/
-  Ptr<MobilityModel> mobilityRsuNode = nodePool.Get (0)->GetObject<MobilityModel> ();
-  mobilityRsuNode->SetPosition (Vector (50, 25, 3));
+  Ptr<MobilityModel> mobilityRsuNode0 = nodePool.Get (0)->GetObject<MobilityModel> ();
+  mobilityRsuNode0->SetPosition (Vector (50, 25, 3));
+  nodeCounter++;
+
+  Ptr<MobilityModel> mobilityRsuNode1 = nodePool.Get (1)->GetObject<MobilityModel> ();
+  mobilityRsuNode1->SetPosition (Vector (250, 25, 3));
   nodeCounter++;
   /* RSU apps */
   ApplicationContainer tmsProviderContainer;
   ndn::AppHelper tmsProviderHelper ("TmsProviderApp");
   tmsProviderHelper.SetAttribute ("Client", (PointerValue) (sumoClient)); // pass TraCI object
   tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (0)));
+  tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (1)));
 
   // config
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",

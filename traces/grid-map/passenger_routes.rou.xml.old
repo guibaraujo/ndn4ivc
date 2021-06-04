@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Fri May 14 20:16:35 2021 by Eclipse SUMO duarouter Version 1.1.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="map.net.xml"/>
+        <route-files value="passenger_trips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="passenger_routes.rou.xml"/>
+        <alternatives-output value="passenger_routes.rou.alt.xml"/>
+    </output>
+
+    <time>
+        <begin value="0.0"/>
+        <end value="1.0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <ignore-errors value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="passenger" vClass="passenger"/>
+    <vehicle id="passenger0" type="passenger" depart="0.00">
+        <route edges="D0C0 C0D0 D0D1 D1C1"/>
+    </vehicle>
+    <vehicle id="passenger1" type="passenger" depart="0.03">
+        <route edges="C1D1 D1C1 C1B1 B1B0 B0C0"/>
+    </vehicle>
+    <vehicle id="passenger2" type="passenger" depart="0.07">
+        <route edges="A0A1 A1B1 B1C1 C1C0"/>
+    </vehicle>
+    <vehicle id="passenger3" type="passenger" depart="0.10">
+        <route edges="A1B1 B1C1 C1C0"/>
+    </vehicle>
+    <vehicle id="passenger4" type="passenger" depart="0.13">
+        <route edges="B1B0 B0B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger5" type="passenger" depart="0.17">
+        <route edges="B0A0 A0A1"/>
+    </vehicle>
+    <vehicle id="passenger6" type="passenger" depart="0.20">
+        <route edges="C0D0 D0C0 C0B0 B0A0 A0B0"/>
+    </vehicle>
+    <vehicle id="passenger7" type="passenger" depart="0.23">
+        <route edges="B1B0 B0C0 C0C1"/>
+    </vehicle>
+    <vehicle id="passenger8" type="passenger" depart="0.26">
+        <route edges="C1B1 B1C1 C1C0 C0B0"/>
+    </vehicle>
+    <vehicle id="passenger9" type="passenger" depart="0.30">
+        <route edges="B0A0 A0B0 B0C0 C0D0 D0D1"/>
+    </vehicle>
+    <vehicle id="passenger10" type="passenger" depart="0.33">
+        <route edges="D1D0 D0C0 C0B0 B0B1 B1A1"/>
+    </vehicle>
+    <vehicle id="passenger11" type="passenger" depart="0.36">
+        <route edges="D1D0 D0C0"/>
+    </vehicle>
+    <vehicle id="passenger12" type="passenger" depart="0.40">
+        <route edges="D0D1 D1C1 C1D1"/>
+    </vehicle>
+    <vehicle id="passenger13" type="passenger" depart="0.43">
+        <route edges="C0D0 D0C0 C0B0 B0B1 B1B0"/>
+    </vehicle>
+    <vehicle id="passenger14" type="passenger" depart="0.46">
+        <route edges="A0B0 B0C0 C0C1 C1D1 D1C1"/>
+    </vehicle>
+    <vehicle id="passenger15" type="passenger" depart="0.50">
+        <route edges="B1C1 C1B1 B1A1 A1A0"/>
+    </vehicle>
+    <vehicle id="passenger16" type="passenger" depart="0.53">
+        <route edges="B0B1 B1C1 C1D1 D1D0"/>
+    </vehicle>
+    <vehicle id="passenger17" type="passenger" depart="0.56">
+        <route edges="C0D0 D0C0 C0B0 B0B1 B1A1"/>
+    </vehicle>
+    <vehicle id="passenger18" type="passenger" depart="0.59">
+        <route edges="B1B0 B0A0 A0A1 A1B1"/>
+    </vehicle>
+    <vehicle id="passenger19" type="passenger" depart="0.63">
+        <route edges="C0D0 D0C0 C0C1 C1D1"/>
+    </vehicle>
+    <vehicle id="passenger20" type="passenger" depart="0.66">
+        <route edges="D1C1 C1D1 D1D0 D0D1"/>
+    </vehicle>
+    <vehicle id="passenger21" type="passenger" depart="0.69">
+        <route edges="D1C1 C1D1 D1D0 D0C0"/>
+    </vehicle>
+    <vehicle id="passenger22" type="passenger" depart="0.73">
+        <route edges="C0C1 C1C0"/>
+    </vehicle>
+    <vehicle id="passenger23" type="passenger" depart="0.76">
+        <route edges="D1D0 D0C0 C0C1 C1D1"/>
+    </vehicle>
+    <vehicle id="passenger24" type="passenger" depart="0.79">
+        <route edges="B1B0 B0B1 B1C1"/>
+    </vehicle>
+    <vehicle id="passenger25" type="passenger" depart="0.83">
+        <route edges="D1D0 D0C0 C0B0 B0B1"/>
+    </vehicle>
+    <vehicle id="passenger26" type="passenger" depart="0.86">
+        <route edges="A1A0 A0B0 B0C0 C0D0 D0D1"/>
+    </vehicle>
+    <vehicle id="passenger27" type="passenger" depart="0.89">
+        <route edges="D0D1 D1D0 D0C0 C0B0 B0A0 A0B0"/>
+    </vehicle>
+    <vehicle id="passenger28" type="passenger" depart="0.92">
+        <route edges="B1A1 A1B1 B1C1 C1C0"/>
+    </vehicle>
+    <vehicle id="passenger29" type="passenger" depart="0.96">
+        <route edges="A0B0"/>
+    </vehicle>
+    <vehicle id="passenger30" type="passenger" depart="0.99">
+        <route edges="A0A1 A1B1 B1C1 C1D1 D1D0"/>
+    </vehicle>
+</routes>
