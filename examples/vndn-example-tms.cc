@@ -309,9 +309,12 @@ main (int argc, char *argv[])
   tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (0)));
   tmsProviderContainer.Add (tmsProviderHelper.Install (nodePool.Get (1)));
 
-  // config
+  // config 
+  // can be configured after stack is installed
   Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelNumber",
                ns3::UintegerValue (SCH3));
+  // MaxPitEntryLifetime: Maximum amount of time for which a router is willing to maintain a PIT entry
+  //Config::Set ("/NodeList/*/$ns3::ndn::Pit/MaxPitEntryLifetime", TimeValue (Seconds (5)));               
 
   Simulator::Schedule (Seconds (1), &checkDisableNodes);
 
