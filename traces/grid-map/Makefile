@@ -24,7 +24,7 @@ trips:
 	@echo "${START_COLOR}Done! ${END_COLOR}\n"
 
 sim:
-	sumo -c sim.sumocfg
+	sumo-gui -c sim.sumocfg
 
 clean:
 	rm -f passenger_routes.rou*xml emergency_routes.rou.*xml *trips.xml trips.xml

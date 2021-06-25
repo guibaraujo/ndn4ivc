@@ -1,8 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <vehicle id="acc0" type="passenger" depart="0.00">
-        <route edges="B0C0 C0D0 D0D1"/>
-        <stop lane="B0C0_0" endPos="15" duration="180"/>
-    </vehicle>
-</routes>
+<decals>
+    <decal filename="/home/ndnsim/ndnSIM/ns-3/contrib/ndn4ivc/traces/grid-map/rsu.png" centerX="50.00" centerY="25.00" centerZ="0.00" width="10.00" height="10.00" altitude="0.00" rotation="0.00" tilt="0.00" roll="0.00" layer="0.00" screenRelative="0"/>
+    <decal filename="/home/ndnsim/ndnSIM/ns-3/contrib/ndn4ivc/traces/grid-map/rsu.png" centerX="250.00" centerY="25.00" centerZ="0.00" width="10.00" height="10.00" altitude="0.00" rotation="0.00" tilt="0.00" roll="0.00" layer="0.00" screenRelative="0"/>
+</decals>
