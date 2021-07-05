@@ -124,3 +124,18 @@ In this example the log file will be redirect:
 
 ## **Demo**
 [[For more videos about NDN4IVC click here! ]](https://www.youtube.com/channel/UCzjOH9dSMyA5aoR-GZkAotw)
+
+## **Acknowledgements**
+
+If you use NDN4IVC or one of its component models, we would appreciate a citation of our work:
+
+```tex
+@misc{araujo2021ndn4ivc,
+      title={NDN4IVC: A Framework for Simulating and Testing Applications in Vehicular Named-Data Networking}, 
+      author={Guilherme B. Araujo and Maycon L. M. Peixoto and Leobino N. Sampaio},
+      year={2021},
+      eprint={2107.00715},
+      archivePrefix={arXiv},
+      primaryClass={cs.NI}
+}
+```
