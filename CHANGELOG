@@ -1,0 +1,9 @@
+## [1.0.1] - 2022-08-21
+### Added
+- This CHANGELOG file to hopefully serve as an evolving trail
+
+## [1.0.0] - 2021-07-15
+### Added
+- Base components of the framework for bidirectional communication between Ns-3 and Sumo
+- Use case 1 - Simple beacon message over NDN (Named Data Networking) stack
+- Use case 2 - Simple Intelligent Transport System based on V2X communication

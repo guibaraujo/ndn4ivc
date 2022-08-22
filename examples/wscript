@@ -10,3 +10,9 @@ def build(bld):
 
     obj = bld.create_ns3_program('vndn-example-cbr', ['ndn4ivc'])
     obj.source = 'vndn-example-cbr.cc'   
+
+    obj = bld.create_ns3_program('vndn-example-demo', ['ndn4ivc'])
+    obj.source = 'vndn-example-demo.cc'   
+
+    obj = bld.create_ns3_program('vndn-example-its', ['ndn4ivc'])
+    obj.source = 'vndn-example-its.cc'   

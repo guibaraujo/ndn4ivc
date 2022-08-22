@@ -162,6 +162,7 @@ _todo
 
 # Sumo
 *.output*.xml
+sumo-output.*.xml
 SumoError.log
 
 # Logs NDN4IVC
