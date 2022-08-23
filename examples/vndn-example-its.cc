@@ -52,8 +52,8 @@
 
 // ********** config **********
 #define NDN4IVC_FOLDER "contrib/ndn4ivc/"
-#define NDN4IVC_SUMO_SCENARIO_NAME \
-  "spider-map" //"grid-map-test" //see 'ndn4ivc/traces' (e.g. grid-map, grid-map-test)
+#define NDN4IVC_SUMO_SCENARIO_NAME "spider-map"
+//  "grid-map-test" //see more in 'ndn4ivc/traces' (e.g., grid-map)
 // ********** config **********
 
 #define NDN4IVC_SUMO_MAP_NET_FILE \
@@ -137,7 +137,7 @@ importSumoNetMapFromXmlFile (std::vector<VertexSumoMap *> &vertices,
        brewery_node = brewery_node->next_sibling ("junction"))
     {
       std::string type = brewery_node->first_attribute ("type")->value ();
-      if (!type.compare ("priority"))
+      if (type.compare ("internal"))
         {
           std::string nameId = brewery_node->first_attribute ("id")->value ();
           VertexSumoMap *v = new VertexSumoMap (idx, nameId);
@@ -168,6 +168,7 @@ importSumoNetMapFromXmlFile (std::vector<VertexSumoMap *> &vertices,
   std::cout << "Done! XML imported with #v=" << vertices.size () << " #e=" << edges.size ()
             << std::endl;
   std::cout << "If no errors/alerts, all SUMO net map has been imported!" << std::endl;
+  //vertices == 0 || edges == 0 //alert here, problems
 }
 
 /**
@@ -411,7 +412,7 @@ main (int argc, char *argv[])
 
   /** RSU0 **/
   Ptr<MobilityModel> mobilityRsuNode0 = nodePool.Get (0)->GetObject<MobilityModel> (); // RSU0
-  mobilityRsuNode0->SetPosition (Vector (250, 25, 3)); //RSU >> fixed position: x,y,z
+  mobilityRsuNode0->SetPosition (Vector (200, 172, 3)); //RSU fixed position: x,y,z 
   nodeCounter++;
   nodeName = "/ufba/RSU/idRsu_" + std::to_string (nodeCounter - 1);
   myAppPrefix = "/service/its/navigo";
