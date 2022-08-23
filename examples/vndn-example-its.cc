@@ -47,13 +47,15 @@
 #define CYAN_CODE "\033[36m"
 #define END_CODE "\033[0m"
 
-// *** config ***
 #define MYLOG_COMPONENT "vndn-example-its"
 #include "../helper/mylog-helper.h"
 
+// ********** config **********
 #define NDN4IVC_FOLDER "contrib/ndn4ivc/"
 #define NDN4IVC_SUMO_SCENARIO_NAME \
-  "grid-map-test" //see 'ndn4ivc/traces' (e.g. grid-map, grid-map-test)
+  "spider-map" //"grid-map-test" //see 'ndn4ivc/traces' (e.g. grid-map, grid-map-test)
+// ********** config **********
+
 #define NDN4IVC_SUMO_MAP_NET_FILE \
   NDN4IVC_FOLDER "traces/" NDN4IVC_SUMO_SCENARIO_NAME "/map.net.xml" //define net-file SUMO
 #define NDN4IVC_SUMO_NUM_VEHICLES                               \

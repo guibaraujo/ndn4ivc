@@ -1,0 +1,4 @@
+<decals>
+    <decal filename="/home/ndnsim/ndnSIM/ns-3/contrib/ndn4ivc/traces/grid-map/rsu.png" centerX="50.00" centerY="25.00" centerZ="0.00" width="10.00" height="10.00" altitude="0.00" rotation="0.00" tilt="0.00" roll="0.00" layer="0.00" screenRelative="0"/>
+    <decal filename="/home/ndnsim/ndnSIM/ns-3/contrib/ndn4ivc/traces/grid-map/rsu.png" centerX="250.00" centerY="25.00" centerZ="0.00" width="10.00" height="10.00" altitude="0.00" rotation="0.00" tilt="0.00" roll="0.00" layer="0.00" screenRelative="0"/>
+</decals>
