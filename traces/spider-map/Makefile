@@ -5,7 +5,7 @@ END_COLOR='\033[0m'
 # map km² -> 0.3 * 0.1 = 0.03
 # 1000 veh = 1 / 0.03 * 1000 = 0.033
 # 3000 veh = 1 / 0.03 * 3000 =  0.011
-PASS_PARAMS=-b 0 -e 25 -p 0.25 --vehicle-class passenger
+PASS_PARAMS=-b 0 -e 10 -p 0.05 --vehicle-class passenger
 # Emergency vehicle
 #EMER_PARAMS=-b 0 -e 1 -p 30 --vehicle-class emergency --trip-attributes="color=\"255,255,255\""
 
@@ -13,7 +13,7 @@ all: clean trips
 
 map: 
 #	netgenerate --grid --flip-y-axis --grid.x-number=4 --grid.y-number=2 --grid.length=100 --default.lanenumber=1 --output-file=map.net.xml -j traffic_light
-	netgenerate --spider --spider.arm-number 6 --spider.circle-number 2 --default.lanenumber=1 --spider.space-radius=75 --output-file=map.net.xml -j traffic_light
+	netgenerate --spider --spider.arm-number 6 --spider.circle-number 2 --default.lanenumber=1 --spider.space-radius=100 --output-file=map.net.xml -j traffic_light
 
 
 trips:

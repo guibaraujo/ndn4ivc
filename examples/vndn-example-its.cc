@@ -412,7 +412,8 @@ main (int argc, char *argv[])
 
   /** RSU0 **/
   Ptr<MobilityModel> mobilityRsuNode0 = nodePool.Get (0)->GetObject<MobilityModel> (); // RSU0
-  mobilityRsuNode0->SetPosition (Vector (200, 172, 3)); //RSU fixed position: x,y,z 
+  mobilityRsuNode0->SetPosition (
+      Vector (200, 172, 3)); //RSU fixed position: x,y,z (open SUMO map to see the coordinates)
   nodeCounter++;
   nodeName = "/ufba/RSU/idRsu_" + std::to_string (nodeCounter - 1);
   myAppPrefix = "/service/its/navigo";

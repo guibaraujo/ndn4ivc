@@ -92,15 +92,17 @@ ItsRsu::ItsRsu (Name appPrefix, Name nodeName, ns3::Ptr<ns3::GraphSumoMap> &grap
                                   "Failed to register sync interest prefix: " + reason);
                             });
 
-  m_scheduler.schedule (ndn::time::milliseconds (m_defaultInterval), [this] { PrintFib (); });
+  //m_scheduler.schedule (ndn::time::milliseconds (m_defaultInterval), [this] { PrintFib (); });
 }
 
 void
 ItsRsu::Start ()
 {
-  m_scheduler.schedule (time::milliseconds (m_defaultInterval), [this] { SendBeaconInterest (); });
   m_scheduler.schedule (time::milliseconds (m_defaultInterval),
                         [this] { UpdateRoadTrafficDatabase (); });
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+                        [this] { SendBeaconInterest (); });
 }
 
 void
@@ -131,13 +133,15 @@ ItsRsu::SendBeaconInterest ()
   interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
   interest.setName (name);
   interest.setCanBePrefix (false);
-  interest.setInterestLifetime (time::milliseconds (m_beaconRTTimeout));
+  interest.setInterestLifetime (time::milliseconds (0));
 
   m_face.expressInterest (
       interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
       [] (const Interest &) {});
 
-  m_scheduler.schedule (time::milliseconds (m_beaconInterval), [this] { SendBeaconInterest (); });
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (100.0, 200.0)),
+                        [this] { SendBeaconInterest (); });
 }
 
 void
@@ -203,11 +207,11 @@ ItsRsu::OnMsgContent (const ndn::Interest &interest, const ndn::Data &data)
   /* Security validation */
   if (data.getSignature ().hasKeyLocator ())
     {
-      MYLOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ());
+      NS_LOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ()
+                                         << " type=" << data.getSignature ().getType ());
     }
 
   // Validating data
-  MYLOG_DEBUG ("Validating package...");
   m_validator.validate (data, std::bind (&ItsRsu::OnMsgValidated, this, _1),
                         std::bind (&ItsRsu::OnMsgValidationFailed, this, _1, _2));
 }
@@ -398,7 +402,7 @@ ItsRsu::RegisterPrefixes ()
       appHelloPrefix.append (kRsuHelloType);
       MYLOG_DEBUG ("FibHelper::AddRoute prefix=" << appHelloPrefix
                                                  << " via faceId=" << face->getId ());
-      // add Fib entry for TMSPREFIX with properly faceId
+      // add Fib entry for properly faceId
       FibHelper::AddRoute (thisNode, appHelloPrefix, face, metric);
     }
 }
@@ -425,8 +429,11 @@ ItsRsu::UpdateRoadTrafficDatabase ()
   for (auto const &g : graph_edgeWeights)
     graph_edgeWeights[g.first] = m_traci->TraCIAPI::edge.getTraveltime (g.first);
   m_graphMap->setAllEdgeWeights (graph_edgeWeights);
-  m_scheduler.schedule (time::milliseconds (10 * m_defaultInterval),
-                        [this] { UpdateRoadTrafficDatabase (); });
+
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (
+      time::milliseconds (10 * m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+      [this] { UpdateRoadTrafficDatabase (); });
 }
 
 } // namespace its

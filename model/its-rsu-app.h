@@ -64,6 +64,7 @@ public:
   virtual void
   StopApplication ()
   {
+    // Stop and destroy the instance of the app
     m_instance->Stop ();
     m_instance.reset ();
   }

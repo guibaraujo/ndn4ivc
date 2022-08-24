@@ -5,8 +5,8 @@
     </input>
 
     <output>
-         <tripinfo-output value="sumo-output.tripinfo.xml"/>
-         <emission-output value="sumo-output.emission.xml"/>
+         <!-- <tripinfo-output value="sumo-output.tripinfo.xml"/> -->
+         <!-- <emission-output value="sumo-output.emission.xml"/> -->
          <!-- <fcd-output value="sumo-output.fcd.xml"/> -->
     </output>
 

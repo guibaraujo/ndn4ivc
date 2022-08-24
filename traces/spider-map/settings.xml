@@ -2,4 +2,8 @@
     <scheme name="real world"/>
     <viewport zoom="100.00" x="200.00" y="172.00" angle="0.00" centerX="0.00" centerY="0.00" centerZ="0.00"/>
     <delay value="0.00"/>
+
+    <decals>
+    <decal filename="/home/ndnsim/ndnSIM/ns-3/contrib/ndn4ivc/traces/spider-map/rsu.png" centerX="200.00" centerY="192.00" centerZ="0.00" width="30.00" height="30.00" altitude="0.00" rotation="0.00" tilt="0.00" roll="0.00" layer="0.00" screenRelative="0"/>
+    </decals>
 </viewsettings>

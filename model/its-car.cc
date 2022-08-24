@@ -83,16 +83,18 @@ ItsCar::ItsCar (Name appPrefix, Name nodeName, ns3::Ptr<ns3::TraciClient> &traci
                                   "Failed to register sync interest prefix: " + reason);
                             });
 
-  m_scheduler.schedule (ndn::time::milliseconds (m_defaultInterval), [this] { PrintFib (); });
+  //m_scheduler.schedule (ndn::time::milliseconds (m_defaultInterval), [this] { PrintFib (); });
+  //m_scheduler.schedule (time::milliseconds (m_beaconInterval), [this] { SendBeaconInterest (); });
 }
 
 void
 ItsCar::Start ()
 {
   m_newRouteInterest = true; //node interested in faster routes
-
-  m_scheduler.schedule (time::milliseconds (m_beaconInterval), [this] { SendBeaconInterest (); });
   m_scheduler.schedule (time::milliseconds (m_defaultInterval), [this] { SendItsInterest (); });
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+                        [this] { SendBeaconInterest (); });
 }
 
 void
@@ -136,17 +138,19 @@ ItsCar::SendItsInterest ()
   name.append (std::to_string (CalcTimeWindow (10))); //<time-window>
   MYLOG_INFO ("Sending Navigo Interest " << name);
 
-  Interest interest = Interest ();
-  interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
-  interest.setName (name);
-  interest.setCanBePrefix (false);
-  interest.setInterestLifetime (time::milliseconds (m_defaultRTTimeout));
+  shared_ptr<Interest> interest = make_shared<Interest> ();
+  interest->setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
+  interest->setName (name);
+  interest->setCanBePrefix (false);
+  interest->setInterestLifetime (time::milliseconds (m_defaultRTTimeout));
 
-  m_face.expressInterest (interest, std::bind (&ItsCar::OnItsContent, this, _1, _2),
+  m_face.expressInterest (*interest, std::bind (&ItsCar::OnItsContent, this, _1, _2),
                           std::bind (&ItsCar::OnItsNack, this, _1, _2),
                           std::bind (&ItsCar::OnItsTimedOut, this, _1));
 
-  m_scheduler.schedule (time::milliseconds (m_defaultInterval), [this] { SendItsInterest (); });
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+                        [this] { SendItsInterest (); });
   //m_newRouteInterest = false;
 }
 
@@ -158,17 +162,20 @@ ItsCar::SendBeaconInterest ()
   name.append (m_nodeName);
   MYLOG_INFO ("Sending BEACON " << name);
 
-  Interest interest = Interest ();
-  interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
-  interest.setName (name);
-  interest.setCanBePrefix (false);
-  interest.setInterestLifetime (time::milliseconds (m_beaconRTTimeout));
+  shared_ptr<Interest> interest = make_shared<Interest> ();
+  //Interest interest = Interest ();
+  interest->setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
+  interest->setName (name);
+  interest->setCanBePrefix (false);
+  interest->setInterestLifetime (time::milliseconds (0));
 
   m_face.expressInterest (
-      interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
+      *interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
       [] (const Interest &) {});
-
-  m_scheduler.schedule (time::milliseconds (m_beaconInterval), [this] { SendBeaconInterest (); });
+  //m_face.expressInterest(*interest, nullptr, nullptr, nullptr);
+  ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
+  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (100.0, 200.0)),
+                        [this] { SendBeaconInterest (); });
 }
 
 void
@@ -178,7 +185,7 @@ ItsCar::OnBeaconHelloInterest (const ndn::Interest &interest)
   appHelloPrefix.append (kCarHelloType);
   // Sanity check to avoid hello interest from myself
   std::string neighName = interest.getName ().getSubName (appHelloPrefix.size ()).toUri ();
-  if (neighName == m_nodeName)
+  if (!neighName.compare (m_nodeName.toUri ()))
     {
       return;
     }
@@ -194,14 +201,14 @@ ItsCar::SendMsgInterest (const std::string &neighName)
   //name.append ("/1");
   MYLOG_INFO ("Sending MSG Interest to neighbor=" << neighName << " >>> " << msgName << "");
 
-  Interest interest = Interest ();
-  interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
-  interest.setName (msgName);
-  interest.setCanBePrefix (false);
-  interest.setMustBeFresh (true);
-  interest.setInterestLifetime (time::milliseconds (m_defaultRTTimeout));
+  shared_ptr<Interest> interest = make_shared<Interest> ();
+  interest->setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
+  interest->setName (msgName);
+  interest->setCanBePrefix (false);
+  interest->setMustBeFresh (true);
+  interest->setInterestLifetime (time::milliseconds (m_defaultRTTimeout));
 
-  m_face.expressInterest (interest, std::bind (&ItsCar::OnMsgContent, this, _1, _2),
+  m_face.expressInterest (*interest, std::bind (&ItsCar::OnMsgContent, this, _1, _2),
                           std::bind (&ItsCar::OnMsgNack, this, _1, _2),
                           std::bind (&ItsCar::OnMsgTimedOut, this, _1));
 }
@@ -233,11 +240,11 @@ ItsCar::OnMsgContent (const ndn::Interest &interest, const ndn::Data &data)
   /* Security validation */
   if (data.getSignature ().hasKeyLocator ())
     {
-      MYLOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ());
+      NS_LOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ()
+                                         << " type=" << data.getSignature ().getType ());
     }
 
   // Validating data
-  MYLOG_DEBUG ("Validating package...");
   m_validator.validate (data, std::bind (&ItsCar::OnMsgValidated, this, _1),
                         std::bind (&ItsCar::OnMsgValidationFailed, this, _1, _2));
 }
@@ -345,11 +352,11 @@ ItsCar::OnItsContent (const ndn::Interest &interest, const ndn::Data &data)
   /* Security validation */
   if (data.getSignature ().hasKeyLocator ())
     {
-      MYLOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ());
+      NS_LOG_DEBUG ("Data signed with: " << data.getSignature ().getKeyLocator ().getName ()
+                                         << " type=" << data.getSignature ().getType ());
     }
 
   // Validating data
-  MYLOG_DEBUG ("Validating package...");
   m_validator.validate (data, std::bind (&ItsCar::OnMsgItsValidated, this, _1),
                         std::bind (&ItsCar::OnMsgValidationFailed, this, _1, _2));
 }
@@ -374,7 +381,7 @@ ItsCar::OnMsgItsValidated (const ndn::Data &data)
   /* Get data content */
   size_t content_size = data.getContent ().value_size ();
   std::string content_value ((char *) data.getContent ().value (), content_size);
-  if (content_value.size () < 30)
+  if (content_value.size () < 50)
     {
       MYLOG_INFO ("Received MSG ITS size=" << content_size << " msg=" << content_value);
     }
@@ -400,13 +407,20 @@ ItsCar::OnMsgItsValidated (const ndn::Data &data)
   //**** Caution ****
   //ALERT: Sumo routes must respect the PATTERN: road_0_(current) road_1_(next) ... road_N_(destination)
   //simulation crash (error): "... Route replacement failed for ..."
-  MYLOG_INFO ("Path (roads) has changed for a faster route. Estimated arrival time ~ "
+  MYLOG_INFO ("Path (roads) has changed for a faster route! Estimated arrival time ~ "
               << jsonRes.at ("pathTime").get<double> () << " (s)");
   ns3::Ptr<ns3::Node> thisNode = ns3::NodeList::GetNode (ns3::Simulator::GetContext ());
-  m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode),
-                                       new_routepath (jsonRes.at ("vehiclePath")));
 
-  m_newRouteInterest = false; //true: vehicle will continue to search for faster routes
+  //avoiding SUMO problems when path changes
+  //route data is up to date? VANET >> high node mobility
+  auto new_path = new_routepath (jsonRes.at ("vehiclePath"));
+  //test to avoid SUMO crash error ' Invalid route replacement for vehicle ...'
+  if (!new_path[0].compare (
+          m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode))))
+    {
+      //m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode), new_path);
+      m_newRouteInterest = false; //true = vehicle will continue to search for faster routes
+    }
 }
 
 void
@@ -451,7 +465,7 @@ ItsCar::RegisterPrefixes ()
       appHelloPrefix.append (kCarHelloType);
       MYLOG_DEBUG ("FibHelper::AddRoute prefix=" << appHelloPrefix
                                                  << " via faceId=" << face->getId ());
-      // add Fib entry for TMSPREFIX with properly faceId
+      // add Fib entry for properly faceId
       FibHelper::AddRoute (thisNode, appHelloPrefix, face, metric);
     }
 }
