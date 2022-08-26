@@ -36,7 +36,7 @@ ItsCar::ItsCar (Name appPrefix, Name nodeName, ns3::Ptr<ns3::TraciClient> &traci
       m_rand (ns3::CreateObject<ns3::UniformRandomVariable> ()),
       m_traci (traci),
       m_beaconInterval (1000), //miliseconds
-      m_beaconRTTimeout (5000), //miliseconds
+      m_beaconRTTimeout (0), //miliseconds
       m_defaultRTTimeout (5000), //miliseconds
       m_defaultInterval (1000), //miliseconds
       m_defaultFreshnessPeriod (1000 * 3600) //miliseconds
@@ -93,7 +93,7 @@ ItsCar::Start ()
   m_newRouteInterest = true; //node interested in faster routes
   m_scheduler.schedule (time::milliseconds (m_defaultInterval), [this] { SendItsInterest (); });
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
-  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (50.0, 200.0)),
                         [this] { SendBeaconInterest (); });
 }
 
@@ -149,7 +149,7 @@ ItsCar::SendItsInterest ()
                           std::bind (&ItsCar::OnItsTimedOut, this, _1));
 
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
-  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (50.0, 200.0)),
                         [this] { SendItsInterest (); });
   //m_newRouteInterest = false;
 }
@@ -167,14 +167,14 @@ ItsCar::SendBeaconInterest ()
   interest->setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
   interest->setName (name);
   interest->setCanBePrefix (false);
-  interest->setInterestLifetime (time::milliseconds (0));
+  interest->setInterestLifetime (time::milliseconds (m_beaconRTTimeout)); //It's hello, thus rtt=0
 
   m_face.expressInterest (
       *interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
       [] (const Interest &) {});
   //m_face.expressInterest(*interest, nullptr, nullptr, nullptr);
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
-  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (100.0, 200.0)),
+  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (50.0, 200.0)),
                         [this] { SendBeaconInterest (); });
 }
 
@@ -418,7 +418,7 @@ ItsCar::OnMsgItsValidated (const ndn::Data &data)
   if (!new_path[0].compare (
           m_traci->TraCIAPI::vehicle.getRoadID (m_traci->GetVehicleId (thisNode))))
     {
-      //m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode), new_path);
+      m_traci->TraCIAPI::vehicle.setRoute (m_traci->GetVehicleId (thisNode), new_path);
       m_newRouteInterest = false; //true = vehicle will continue to search for faster routes
     }
 }

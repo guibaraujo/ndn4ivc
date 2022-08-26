@@ -1,9 +1,30 @@
-## [1.0.1] - 2022-08-21
-### Added
+# NDN4IVC versioning: MAJOR . MINOR . PATCH
+
+## [1.1.0] - 2022-08-25
+### New features
 - This CHANGELOG file to hopefully serve as an evolving trail
+- New complete ITS use case (its-*) 
+- spider-map added in traces
+- Add support for automatically import maps <sumo-net-file.xml> 
+- Directed Graph code implementation to represent SUMO maps 
+- Dijkstra's algorithm to find the shortest path in a weighted graph
+- XML helper rapidxml-1.13
+
+### Improvements and bug fixes
+- Several usability improvements 
+- Refactoring some functions & codes
+
+### Removals
+- VERSION file deleted and no longer available. CHANGELOG will replace
+
 
 ## [1.0.0] - 2021-07-15
 ### Added
 - Base components of the framework for bidirectional communication between Ns-3 and Sumo
 - Use case 1 - Simple beacon message over NDN (Named Data Networking) stack
 - Use case 2 - Simple Intelligent Transport System based on V2X communication
+- ns-3.30.1
+- ndnSIM-2.8
+- NFD-0.7.1
+- sumo-1.1.0
+- JSON for Modern C++ nlohmann-3.9.1

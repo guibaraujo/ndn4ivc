@@ -37,8 +37,8 @@ ItsRsu::ItsRsu (Name appPrefix, Name nodeName, ns3::Ptr<ns3::GraphSumoMap> &grap
       m_rand (ns3::CreateObject<ns3::UniformRandomVariable> ()),
       m_graphMap (graph),
       m_traci (traci),
-      m_beaconInterval (1000), //miliseconds
-      m_beaconRTTimeout (1000), //miliseconds
+      m_beaconInterval (5000), //miliseconds
+      m_beaconRTTimeout (0), //miliseconds
       m_defaultRTTimeout (5000), //miliseconds
       m_defaultInterval (1000), //miliseconds
       m_defaultFreshnessPeriod (1000 * 3600) //miliseconds
@@ -101,7 +101,7 @@ ItsRsu::Start ()
   m_scheduler.schedule (time::milliseconds (m_defaultInterval),
                         [this] { UpdateRoadTrafficDatabase (); });
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
-  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+  m_scheduler.schedule (time::milliseconds (m_defaultInterval + delay->GetInteger (50.0, 200.0)),
                         [this] { SendBeaconInterest (); });
 }
 
@@ -133,14 +133,14 @@ ItsRsu::SendBeaconInterest ()
   interest.setNonce (m_rand->GetValue (0, std::numeric_limits<uint32_t>::max ()));
   interest.setName (name);
   interest.setCanBePrefix (false);
-  interest.setInterestLifetime (time::milliseconds (0));
+  interest.setInterestLifetime (time::milliseconds (m_beaconRTTimeout)); //It's hello, thus rtt=0
 
   m_face.expressInterest (
       interest, [] (const Interest &, const Data &) {}, [] (const Interest &, const lp::Nack &) {},
       [] (const Interest &) {});
 
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
-  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (100.0, 200.0)),
+  m_scheduler.schedule (time::milliseconds (m_beaconInterval + delay->GetInteger (50.0, 200.0)),
                         [this] { SendBeaconInterest (); });
 }
 
@@ -156,7 +156,6 @@ ItsRsu::OnBeaconHelloInterest (const ndn::Interest &interest)
       return;
     }
   MYLOG_INFO ("Received BEACON (Hello Interest) " << interest.getName ());
-  // ** DO NOTHING **"
   //SendMsgInterest (neighName);
 }
 
@@ -432,7 +431,7 @@ ItsRsu::UpdateRoadTrafficDatabase ()
 
   ns3::Ptr<ns3::UniformRandomVariable> delay = ns3::CreateObject<ns3::UniformRandomVariable> ();
   m_scheduler.schedule (
-      time::milliseconds (10 * m_defaultInterval + delay->GetInteger (100.0, 200.0)),
+      time::milliseconds (10 * m_defaultInterval + delay->GetInteger (50.0, 200.0)),
       [this] { UpdateRoadTrafficDatabase (); });
 }
 

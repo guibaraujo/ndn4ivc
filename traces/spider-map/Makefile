@@ -5,7 +5,8 @@ END_COLOR='\033[0m'
 # map km² -> 0.3 * 0.1 = 0.03
 # 1000 veh = 1 / 0.03 * 1000 = 0.033
 # 3000 veh = 1 / 0.03 * 3000 =  0.011
-PASS_PARAMS=-b 0 -e 10 -p 0.05 --vehicle-class passenger
+PASS_PARAMS1=-b 0 -e 10 -p 0.05 --vehicle-class passenger
+PASS_PARAMS2=-b 0 -e 10 -p 0.05 --vehicle-class passenger
 # Emergency vehicle
 #EMER_PARAMS=-b 0 -e 1 -p 30 --vehicle-class emergency --trip-attributes="color=\"255,255,255\""
 
@@ -15,15 +16,24 @@ map:
 #	netgenerate --grid --flip-y-axis --grid.x-number=4 --grid.y-number=2 --grid.length=100 --default.lanenumber=1 --output-file=map.net.xml -j traffic_light
 	netgenerate --spider --spider.arm-number 6 --spider.circle-number 2 --default.lanenumber=1 --spider.space-radius=100 --output-file=map.net.xml -j traffic_light
 
-
 trips:
 	@echo "${START_COLOR}Making random SUMO trips ${END_COLOR}"
-	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r passenger_routes.rou.xml -o passenger_trips.xml $(PASS_PARAMS)
+	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r passenger_routes.rou.xml -o passenger_trips.xml $(PASS_PARAMS1)
 	#python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r emergency_routes.rou.xml -o emergency_trips.xml $(EMER_PARAMS)
 
 	sed -i "s/vehicle id=\"/vehicle id=\"passenger/g" passenger_routes.rou.xml
 	#sed -i "s/vehicle id=\"/vehicle id=\"emergency/g" emergency_routes.rou.xml
 	@echo "${START_COLOR}Done! ${END_COLOR}\n"
+
+trips_more_vehicles:
+	@echo "${START_COLOR}Making random SUMO trips ${END_COLOR}"
+	python $(SUMO_HOME)/tools/randomTrips.py -n map.net.xml -r passenger_routes.rou.xml -o passenger_trips.xml $(PASS_PARAMS2)
+
+	sed -i "s/vehicle id=\"/vehicle id=\"passenger/g" passenger_routes.rou.xml
+	#sed -i "s/vehicle id=\"/vehicle id=\"emergency/g" emergency_routes.rou.xml
+	@echo "${START_COLOR}Done! ${END_COLOR}\n"
+
+
 
 sim:
 	sumo-gui -c sim.sumocfg

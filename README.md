@@ -1,9 +1,16 @@
 ## **NDN4IVC**
-> It is an open-source framework for running Vehicular Named-Data Networking (V-NDN) simulations in more realistic road traffic mobility scenarios.
+> It is an open-source framework for running Vehicular Named-Data Networking (VNDN) simulations in more realistic road traffic mobility scenarios.
 
 > NDN4IVC is based on simulators: [Ns-3](https://www.nsnam.org/)|[ndnSIM](https://ndnsim.net), an open-source discrete-event network simulator, and [SUMO](https://www.eclipse.org/sumo/) (Simulation of Urban MObility), a microscopic and continuous multi-modal traffic simulation. 
 
-> The framework permits a bidirectional communication between ns3|ndnSIM, and SUMO to evaluate better applications, services, and improved IVC (inter-vehicle communication) analysis for ITS (Intelligent Transportation System)/VNDN context.
+> The framework permits a bidirectional communication between ns3|ndnSIM, and it aims to encourage the development of NDN-based vehicular applications through the best built-in features of both traditional VANET simulators and the NDN stack within ndnSIM. So, the main contributions are as follows: 
+
+>> It introduces a simulation environment for NDN-based VANET applications; 
+
+>> Highlight the need for more realistic VANET simulation, with more real-time data from the whole vehicular environment, to assist different vehicular applications and also be used to improve protocols in NDN's layer 3; 
+
+>> NDN4IVC code demonstrates how to simulate quickly classic vehicular applications using different NDN's properties.
+
 
 <img align="center" src="https://github.com/guibaraujo/ndn4ivc/blob/main/doc/images/logo.png" width="auto" height="auto">
 
@@ -91,38 +98,56 @@ OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <f
 
 <a href="https://drive.google.com/file/d/1-4ONkPmI61Bt9ix75lKrv35JwJyBHZC8/view?usp=sharing">Click here to download NDN4IVC_VM</a>
 
-## **Running Use Cases (i) & (ii)**
-List of parameters:
-* --i: the interval between interest messages (in milisegundos)
+## **Running Use Cases**
+List of generic parameters (for all apps):
 * --s: simulation time (in seconds)
 * --sumo-gui: enable SUMO graphical user interface 
-* --vis: enable Ns-3 graphical user interface 
+* --vis: enable Ns-3 graphical user interface (visualizer)
 
-**Use case I** (Traffic Safety) [[Watch a demo]](https://youtu.be/r-0Wb3J_cfs)
+### **E.g.: Use case I** 
+Lightweight sample (Traffic Safety)** [[Watch a demo]](https://youtu.be/r-0Wb3J_cfs)
 
-Examples: 
 ```sh
-./waf --run "vndn-example-beacon --i=500 --s=30"
-./waf --run "vndn-example-beacon --sumo-gui"
+# this app uses specific parameter: '--i' interval between interest messages (milisegundos)
+./waf --run "vndn-example-beacon --i=500 --sumo-gui"
 ./waf --run "vndn-example-beacon --s=100 --sumo-gui"
 ./waf --run "vndn-example-beacon --i=1000 --sumo-gui" --vis
 ```
 
-**Use case II** (Traffic Management Services) [[Watch a demo]](https://youtu.be/J1e7tvX0bxs)
+### **E.g.: Use case II**
+Lightweight, test demo (Traffic Management Services)** [[Watch a demo]](https://youtu.be/J1e7tvX0bxs)
 
-In this example the log file will be redirect:
 ```sh
+# this example also illustrates how log file can be redirect
 ./waf --run "vndn-example-tms --i=1000 --s=300 --sumo-gui" --vis >contrib/ndn4ivc/results/output_sim.log 2>&1
 ```
 
-## **Another examples**
-
+### **E.g.: Use case III**
+Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https://)
 ```sh
-# a simple constant bitrate (cbr) example - vehicles (consumers) & RSU (producer)
-./waf --run "vndn-example-cbr --sumo-gui" --vis
+# running simulation in text mode only
+./waf --run "./waf --run vndn-example-its --s=500" 
+# running with graphical user interface sumo-gui
+./waf --run "./waf --run vndn-example-its --s=500 --sumo-gui" 
+# ns3 visualizer
+./waf --run "./waf --run vndn-example-its --s=500" --vis
+# both
+./waf --run "./waf --run vndn-example-its --s=500 --sumo-gui" --vis 
 ```
 
-## **Demo**
+### **E.g.: Another generic case(s)**
+```sh
+# a simple constant bitrate (cbr) example - vehicles (consumers) & RSU (producer)
+./waf --run "vndn-example-cbr"
+```
+
+## **Generating other synthetic SUMO mobility traces (It is not mandatory)**
+```sh
+cd contrib/ndn4ivc/traces/spider-map/
+ls; make all
+```
+
+## **Youtube repo**
 [[For more videos about NDN4IVC click here! ]](https://www.youtube.com/channel/UCzjOH9dSMyA5aoR-GZkAotw)
 
 ## **Acknowledgements**
