@@ -5,7 +5,7 @@ END_COLOR='\033[0m'
 # map km² -> 0.3 * 0.1 = 0.03
 # 1000 veh = 1 / 0.03 * 1000 = 0.033
 # 3000 veh = 1 / 0.03 * 3000 =  0.011
-PASS_PARAMS1=-b 0 -e 10 -p 0.05 --vehicle-class passenger
+PASS_PARAMS1=-b 0 -e 10 -p 0.5 --vehicle-class passenger
 PASS_PARAMS2=-b 0 -e 10 -p 0.05 --vehicle-class passenger
 # Emergency vehicle
 #EMER_PARAMS=-b 0 -e 1 -p 30 --vehicle-class emergency --trip-attributes="color=\"255,255,255\""
@@ -32,8 +32,6 @@ trips_more_vehicles:
 	sed -i "s/vehicle id=\"/vehicle id=\"passenger/g" passenger_routes.rou.xml
 	#sed -i "s/vehicle id=\"/vehicle id=\"emergency/g" emergency_routes.rou.xml
 	@echo "${START_COLOR}Done! ${END_COLOR}\n"
-
-
 
 sim:
 	sumo-gui -c sim.sumocfg

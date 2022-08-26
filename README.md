@@ -1,26 +1,24 @@
-## **NDN4IVC**
+## **NDN for Inter-Vehicle Communication (NDN4IVC)**
 > It is an open-source framework for running Vehicular Named-Data Networking (VNDN) simulations in more realistic road traffic mobility scenarios.
 
 > NDN4IVC is based on simulators: [Ns-3](https://www.nsnam.org/)|[ndnSIM](https://ndnsim.net), an open-source discrete-event network simulator, and [SUMO](https://www.eclipse.org/sumo/) (Simulation of Urban MObility), a microscopic and continuous multi-modal traffic simulation. 
 
-> The framework permits a bidirectional communication between ns3|ndnSIM, and it aims to encourage the development of NDN-based vehicular applications through the best built-in features of both traditional VANET simulators and the NDN stack within ndnSIM. So, the main contributions are as follows: 
+> The framework permits an online bi-directional communication between ns3 and SUMO. This way, the influence of vehicular networks on road traffic can be modeled and complex interactions between both domains examined. So, the main contributions are as follows: 
 
->> It introduces a simulation environment for NDN-based VANET applications; 
-
->> Highlight the need for more realistic VANET simulation, with more real-time data from the whole vehicular environment, to assist different vehicular applications and also be used to improve protocols in NDN's layer 3; 
-
->> NDN4IVC code demonstrates how to simulate quickly classic vehicular applications using different NDN's properties.
+- It introduces a simulation environment for NDN-based VANET applications; 
+- Highlight the need for more realistic VANET simulation, with more real-time data from the whole vehicular environment, to assist different vehicular applications and also be used to improve protocols in NDN's layer 3; 
+- NDN4IVC code demonstrates how to simulate quickly classic vehicular applications using different NDN's properties.
 
 
 <img align="center" src="https://github.com/guibaraujo/ndn4ivc/blob/main/doc/images/logo.png" width="auto" height="auto">
 
 ## **Preparing**
-- Sumo version 1.1.0 (official doc)\
+Sumo version 1.1.0 (official doc)\
 https://sumo.dlr.de/docs/index.html \
 https://sumo.dlr.de/docs/Installing \
 https://sourceforge.net/projects/sumo/files/sumo/version%201.1.0
 
-- Ns-3 v3.30.1 & ndnSIM v2.8 (official doc)\
+Ns-3 v3.30.1 & ndnSIM v2.8 (official doc)\
 https://ndnsim.net/current/getting-started.html
 
 Ubuntu 18.04 - installing dependencies:
@@ -84,20 +82,6 @@ cd $HOME/ndnSIM/
 sed -i 's/getForwarder().getFaceTable()/getFaceTable()/g' ns-3/src/visualizer/visualizer/plugins/ndnsim_fib.py
 ```
 
-## **Virtual Machine** 
-
-Instant NDN4IVC_VM is a virtual machine that can be used to try out NDN4IVC quickly. It is created over VirtualBox 6.1. 
-
-The virtual appliance being run is Instant NDN4IVC version 1.0, but check manually for updates after VM installation.
-```sh
-cd $HOME/ndnSIM/ns-3/contrib/ndn4ivc
-git fetch --all && git reset --hard origin/main && git pull origin main
-```
-
-OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <font color="red">ndn4ivc</font>
-
-<a href="https://drive.google.com/file/d/1-4ONkPmI61Bt9ix75lKrv35JwJyBHZC8/view?usp=sharing">Click here to download NDN4IVC_VM</a>
-
 ## **Running Use Cases**
 List of generic parameters (for all apps):
 * --s: simulation time (in seconds)
@@ -123,7 +107,7 @@ Lightweight, test demo (Traffic Management Services)** [[Watch a demo]](https://
 ```
 
 ### **E.g.: Use case III**
-Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https://)
+Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https://youtu.be/tAN8iemPoAo)
 ```sh
 # running simulation in text mode only
 ./waf --run "./waf --run vndn-example-its --s=500" 
@@ -135,7 +119,7 @@ Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https
 ./waf --run "./waf --run vndn-example-its --s=500 --sumo-gui" --vis 
 ```
 
-### **E.g.: Another generic case(s)**
+### **E.g.: Another generic case**
 ```sh
 # a simple constant bitrate (cbr) example - vehicles (consumers) & RSU (producer)
 ./waf --run "vndn-example-cbr"
@@ -149,6 +133,20 @@ ls; make all
 
 ## **Youtube repo**
 [[For more videos about NDN4IVC click here! ]](https://www.youtube.com/channel/UCzjOH9dSMyA5aoR-GZkAotw)
+
+## **Getting Virtual Machine** 
+
+Instant NDN4IVC_VM is a virtual machine that can be used to try out NDN4IVC quickly. It is created over VirtualBox 6.1. 
+
+The virtual appliance being run is Instant NDN4IVC version 1.0, but check manually for updates after VM installation.
+```sh
+cd $HOME/ndnSIM/ns-3/contrib/ndn4ivc
+git fetch --all && git reset --hard origin/main && git pull origin main
+```
+
+OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <font color="red">ndn4ivc</font>
+
+<a href="https://drive.google.com/file/d/1-4ONkPmI61Bt9ix75lKrv35JwJyBHZC8/view?usp=sharing">Click here to download NDN4IVC_VM</a>
 
 ## **Acknowledgements**
 

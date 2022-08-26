@@ -4,7 +4,7 @@
 ### New features
 - This CHANGELOG file to hopefully serve as an evolving trail
 - New complete ITS use case (its-*) 
-- spider-map added in traces
+- spider-map added (./traces/spider-map)
 - Add support for automatically import maps <sumo-net-file.xml> 
 - Directed Graph code implementation to represent SUMO maps 
 - Dijkstra's algorithm to find the shortest path in a weighted graph
@@ -23,8 +23,8 @@
 - Base components of the framework for bidirectional communication between Ns-3 and Sumo
 - Use case 1 - Simple beacon message over NDN (Named Data Networking) stack
 - Use case 2 - Simple Intelligent Transport System based on V2X communication
-- ns-3.30.1
-- ndnSIM-2.8
-- NFD-0.7.1
-- sumo-1.1.0
-- JSON for Modern C++ nlohmann-3.9.1
+- ns-3.30.1 - Network Simulator
+- ndnSIM-2.8 - Named-Data Networking (NDN) Simulator
+- NFD-0.7.1 - Named Data Networking Forwarding Daemon
+- sumo-1.1.0 - Simulation of Urban MObility
+- nlohmann-3.9.1 - JSON for Modern C++
