@@ -5,9 +5,11 @@
 
 > The framework permits an online bi-directional communication between ns3 and SUMO. This way, the influence of vehicular networks on road traffic can be modeled and complex interactions between both domains examined. So, the main contributions are as follows: 
 
-- It introduces a simulation environment for NDN-based VANET applications; 
-- Highlight the need for more realistic VANET simulation, with more real-time data from the whole vehicular environment, to assist different vehicular applications and also be used to improve protocols in NDN's layer 3; 
-- NDN4IVC code demonstrates how to simulate quickly classic vehicular applications using different NDN's properties.
+> (i) It introduces a simulation environment for NDN-based VANET applications; 
+
+> (ii) Highlight the need for more realistic VANET simulation, with more real-time data from the whole vehicular environment, to assist different vehicular applications and also be used to improve protocols in NDN's layer 3; 
+
+> (iii) NDN4IVC code demonstrates how to simulate quickly classic vehicular applications using different NDN's properties.
 
 
 <img align="center" src="https://github.com/guibaraujo/ndn4ivc/blob/main/doc/images/logo.png" width="auto" height="auto">
@@ -88,8 +90,8 @@ List of generic parameters (for all apps):
 * --sumo-gui: enable SUMO graphical user interface 
 * --vis: enable Ns-3 graphical user interface (visualizer)
 
-### **E.g.: Use case I** 
-Lightweight sample (Traffic Safety)** [[Watch a demo]](https://youtu.be/r-0Wb3J_cfs)
+### **E.g. Use case I** 
+Lightweight sample (Traffic Safety) [[Watch a demo]](https://youtu.be/r-0Wb3J_cfs)
 
 ```sh
 # this app uses specific parameter: '--i' interval between interest messages (milisegundos)
@@ -98,16 +100,16 @@ Lightweight sample (Traffic Safety)** [[Watch a demo]](https://youtu.be/r-0Wb3J_
 ./waf --run "vndn-example-beacon --i=1000 --sumo-gui" --vis
 ```
 
-### **E.g.: Use case II**
-Lightweight, test demo (Traffic Management Services)** [[Watch a demo]](https://youtu.be/J1e7tvX0bxs)
+### **E.g. Use case II**
+Lightweight, test demo (Traffic Management Services) [[Watch a demo]](https://youtu.be/J1e7tvX0bxs)
 
 ```sh
 # this example also illustrates how log file can be redirect
 ./waf --run "vndn-example-tms --i=1000 --s=300 --sumo-gui" --vis >contrib/ndn4ivc/results/output_sim.log 2>&1
 ```
 
-### **E.g.: Use case III**
-Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https://youtu.be/tAN8iemPoAo)
+### **E.g. Use case III ✯✯✯**
+Full, complete demo (Intelligent Transportation System) [[Watch a demo]](https://youtu.be/tAN8iemPoAo)
 ```sh
 # running simulation in text mode only
 ./waf --run "./waf --run vndn-example-its --s=500" 
@@ -119,7 +121,7 @@ Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https
 ./waf --run "./waf --run vndn-example-its --s=500 --sumo-gui" --vis 
 ```
 
-### **E.g.: Another generic case**
+### **E.g. Another cases**
 ```sh
 # a simple constant bitrate (cbr) example - vehicles (consumers) & RSU (producer)
 ./waf --run "vndn-example-cbr"
@@ -127,7 +129,7 @@ Full, complete demo (Intelligent Transportation System)** [[Watch a demo]](https
 
 ## **Generating other synthetic SUMO mobility traces (It is not mandatory)**
 ```sh
-cd contrib/ndn4ivc/traces/spider-map/
+cd $HOME/ndnSIM/ns-3/contrib/ndn4ivc/traces/spider-map/
 ls; make all
 ```
 
@@ -146,7 +148,7 @@ git fetch --all && git reset --hard origin/main && git pull origin main
 
 OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <font color="red">ndn4ivc</font>
 
-<a href="https://drive.google.com/file/d/1-4ONkPmI61Bt9ix75lKrv35JwJyBHZC8/view?usp=sharing">Click here to download NDN4IVC_VM</a>
+<a href="https://drive.google.com/file/d/1-4ONkPmI61Bt9ix75lKrv35JwJyBHZC8/view?usp=sharing">[Click here to download NDN4IVC_VM]</a>
 
 ## **Acknowledgements**
 

@@ -1,5 +1,5 @@
-#ifndef _CERT_HELPER_HPP_
-#define _CERT_HELPER_HPP_
+#ifndef _CERT_HELPER_H_
+#define _CERT_HELPER_H_
 
 #include <ndn-cxx/security/key-chain.hpp>
 #include <ndn-cxx/security/signing-helpers.hpp>
