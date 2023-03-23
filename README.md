@@ -155,6 +155,23 @@ OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <f
 If you use NDN4IVC or one of its component models, we would appreciate a citation of our work:
 
 ```tex
+@inproceedings{10.1145/3517212.3559483,
+      author = {Araujo, Guilherme and Peixoto, Maycon and Sampaio, Leobino},
+      title = {NDN4IVC: A Framework for Simulations of Realistic VANETs Applications through NDN},
+      year = {2022},
+      isbn = {9781450392570},
+      publisher = {Association for Computing Machinery},
+      address = {New York, NY, USA},
+      doi = {10.1145/3517212.3559483},
+      booktitle = {Proceedings of the 9th ACM Conference on Information-Centric Networking},
+      pages = {162–164},
+      numpages = {3},
+      location = {Osaka, Japan},
+      series = {ICN '22}
+}
+```
+or
+```tex
 @misc{araujo2021ndn4ivc,
       title={NDN4IVC: A Framework for Simulating and Testing Applications in Vehicular Named-Data Networking}, 
       author={Guilherme B. Araujo and Maycon L. M. Peixoto and Leobino N. Sampaio},
