@@ -63,7 +63,7 @@ Beacon::isValidBeacon (const Name &name, NeighborInfo &neighbor)
 {
   try
     {
-      /*mexer aqui (std::string)???*/
+      /*(std::string)???*/
       neighbor.SetId (std::stoi (name.get (0).toUri ())); //<node-type>
       neighbor.SetType (name.get (1).toUri ()); //<node-id>
       neighbor.SetRoad (name.get (2).toUri ()); //<road-id>

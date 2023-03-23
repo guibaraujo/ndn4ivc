@@ -42,6 +42,8 @@
 #define END_CODE "\033[0m"
 
 // specify the SUMO scenario in the 'ndn4ivc/traces' directory
+// e.g., grid-map  grid-map-test  highway  highway-map-test  spider-map
+//#define SUMO_SCENARIO_NAME "highway-map-test"
 #define SUMO_SCENARIO_NAME "highway"
 
 #define SHELLSCRIPT_NUM_VEHICLES \
@@ -254,6 +256,7 @@ main (int argc, char *argv[])
     tmsConsumerApp->SetAttribute ("Client", (PointerValue) (sumoClient));
 
     includedNode->AddApplication (tmsConsumerApp);
+    //std::cout<< " ((info attribute)) "<< includedNode->GetDevice (0)->GetObject<WifiNetDevice> ()->GetPhy ()->GetChannel()->GetObject<ns3::YansWifiChannel>()->GetTypeId();
 
     return includedNode;
   };
