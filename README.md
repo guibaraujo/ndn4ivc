@@ -155,29 +155,17 @@ OS: Linux Ubuntu LTS 18.04 **|** user: <font color="red">ndn4ivc</font> pass: <f
 If you use NDN4IVC or one of its component models, we would appreciate a citation of our work:
 
 ```tex
-@inproceedings{10.1145/3517212.3559483,
-      author = {Araujo, Guilherme and Peixoto, Maycon and Sampaio, Leobino},
-      title = {NDN4IVC: A Framework for Simulations of Realistic VANETs Applications through NDN},
-      year = {2022},
-      isbn = {9781450392570},
-      publisher = {Association for Computing Machinery},
-      address = {New York, NY, USA},
-      doi = {10.1145/3517212.3559483},
-      booktitle = {Proceedings of the 9th ACM Conference on Information-Centric Networking},
-      pages = {162–164},
-      numpages = {3},
-      location = {Osaka, Japan},
-      series = {ICN '22}
-}
-```
-or
-```tex
-@misc{araujo2021ndn4ivc,
-      title={NDN4IVC: A Framework for Simulating and Testing Applications in Vehicular Named-Data Networking}, 
-      author={Guilherme B. Araujo and Maycon L. M. Peixoto and Leobino N. Sampaio},
-      year={2021},
-      eprint={2107.00715},
-      archivePrefix={arXiv},
-      primaryClass={cs.NI}
+@article{ARAUJO2023109949,
+title = {A comprehensive and configurable simulation environment for supporting vehicular named-data networking applications},
+journal = {Computer Networks},
+volume = {235},
+pages = {109949},
+year = {2023},
+issn = {1389-1286},
+doi = {https://doi.org/10.1016/j.comnet.2023.109949},
+url = {https://www.sciencedirect.com/science/article/pii/S1389128623003948},
+author = {Guilherme Araujo and Maycon Peixoto and Leobino Sampaio},
+keywords = {Vehicular named-data networking, Vehicular applications, VANET simulation, Simulation architecture},
+abstract = {The Named Data Networking (NDN) architecture, with its network-layer features, services, and properties, is well-suited for vehicular applications and inter-vehicle communication (IVC). In contrast, IP-based host-centric architectures struggle with challenges inherent to the vehicular ad-hoc network (VANET) context, such as node mobility, data security, efficient data forwarding, and routing. Named Data Networking takes a fundamental departure from today’s IP-based architectures for VANET/IVC and thus requires extensive experimentation and evaluation. To facilitate experimentation with Vehicular Named-Data Networking, we present the NDN4IVC, an open-source simulator/framework that facilitates testing of more realistic VANET applications via the NDN stack. This project utilizes two popular simulators for VANET simulation: the NS3 network simulator with the ndnSIM module and SUMO, a simulator of urban mobility. NDN4IVC allows real-time bidirectional communication between SUMO and NS3 to support more data about road traffic and vehicular mobility. The framework can model the impact of vehicular networks on road traffic and investigate complex interactions between the two domains. We included two sample applications in VANET to demonstrate how different NDN properties can be used. Experiments were conducted as proof-of-concept studies to demonstrate the potential of the framework and its functionality.}
 }
 ```
